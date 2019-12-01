@@ -1,6 +1,6 @@
 ﻿module Year2018Day1
 
-    let main (input: seq<string>) =
+    let main (input :string seq) =
         let part1 = 
             input 
             |> Seq.map int 
@@ -17,7 +17,7 @@
                     | [] -> part2' seenValues frequency completeList completeList
             part2' (Set.empty) 0 [] (Seq.map int input |> List.ofSeq) 
                
-        (part1, part2)
+        part1.ToString(), part2.ToString()
        
 
     

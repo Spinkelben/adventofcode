@@ -1,6 +1,6 @@
 ﻿module Year2019Day1
 
-    let main (input :seq<string>) =
+    let main (input :string seq) =
         let calculateFuel mass = (mass / 3) - 2
 
         let part1 = 
@@ -21,4 +21,4 @@
             |> Seq.map (fun x -> part2' 0 (calculateFuel x))
             |> Seq.sum
 
-        (part1, part2)
+        part1.ToString(), part2.ToString()
