@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UserSecretsId>2a19541a-4799-4d5d-9fad-febbcd3502ed</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Utility\InputFetcher.fs" />
+    <Compile Include="2019\Year2019Day1.fs" />
+    <Compile Include="2018\Year2018Day1.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.0.1" />
+  </ItemGroup>
+</Project>
