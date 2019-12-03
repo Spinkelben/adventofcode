@@ -3,6 +3,7 @@
 open System
 open InputFetcher
 open Microsoft.Extensions.Configuration
+open System.Diagnostics
 
 let private puzzleMap year day =
     match year with
@@ -13,6 +14,7 @@ let private puzzleMap year day =
     | "2019" -> match day with
                 | "1" -> Some Year2019Day1.main
                 | "2" -> Some Year2019Day2.main
+                | "3" -> Some Year2019Day3.main
                 | _   -> None
     | _      -> None
 
@@ -30,8 +32,11 @@ let main argv =
     let day = argv.[1]
     printfn "Running Puzzle Year %s Day %s" year day
     let inputLines = getPuzzleInput day year getAuthToken
+    
     let puzzleSolver = puzzleMap year day
 
+    let stopWatch = new Stopwatch();
+    stopWatch.Start()
     match puzzleSolver with
     | Some solver -> 
         inputLines 
@@ -39,7 +44,8 @@ let main argv =
         |> printResult
     | None -> 
         printfn "No solver configured for Year %s Day %s" year day
-
+    stopWatch.Stop()
+    printf "Runtime was %s" (stopWatch.Elapsed.ToString())
     0
 
 

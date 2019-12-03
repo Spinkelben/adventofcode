@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Utility\InputFetcher.fs" />
+    <Compile Include="2019\Year2019Day3.fs" />
     <Compile Include="2019\Year2019Day2.fs" />
     <Compile Include="2019\Year2019Day1.fs" />
     <Compile Include="2018\Year2018Day2.fs" />
