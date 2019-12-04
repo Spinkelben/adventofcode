@@ -19,6 +19,8 @@ Then just do
 donet run <year> <day> <optional: force download of input>
 ```
 
+Example: `dotnet run 2019 4`
+
 ## Days Completed
 
 ### 2019
