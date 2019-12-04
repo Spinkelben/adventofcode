@@ -1,6 +1,6 @@
 # AdventOfCode
 
-This is my repo for AdventOfCode solutions in F#. I am  now to the language so expect weird patterns and dirty hacks. 
+This is my repo for AdventOfCode solutions in F#. I am  new to the language so expect weird patterns and dirty hacks. 
 
 ## How to build
 
