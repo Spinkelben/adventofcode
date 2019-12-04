@@ -16,5 +16,20 @@ dotnet user-secrets set "Auth:SessionToken" <your session token here>
 
 Then just do
 ```
-donet run <year> <day>
+donet run <year> <day> <optional: force download of input>
 ```
+
+## Days Completed
+
+### 2019
+
+- Day 1: The Tyranny of the Rocket Equation 
+- Day 2: 1202 Program Alarm
+- Day 3: Crossed Wires
+-  Day 4: Secure Container
+
+### 2018 
+
+- Day 1: Chronal Calibration
+- Day 2: Inventory Management System
+
