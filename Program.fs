@@ -15,6 +15,7 @@ let private puzzleMap year day =
                 | "1" -> Some Year2019Day1.main
                 | "2" -> Some Year2019Day2.main
                 | "3" -> Some Year2019Day3.main
+                | "4" -> Some Year2019Day4.main
                 | _   -> None
     | _      -> None
 
@@ -31,7 +32,13 @@ let main argv =
     let year = argv.[0]
     let day = argv.[1]
     printfn "Running Puzzle Year %s Day %s" year day
-    let inputLines = getPuzzleInput day year getAuthToken
+    let forceDownloadInput =
+        if argv.Length >= 3 then
+            bool.Parse(argv.[2])
+        else
+            false
+
+    let inputLines = getPuzzleInput day year getAuthToken forceDownloadInput
     
     let puzzleSolver = puzzleMap year day
 

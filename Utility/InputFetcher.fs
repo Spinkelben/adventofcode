@@ -36,6 +36,7 @@ let private getInputFileInfo day year token =
     inputFile
 
 let private getInputFromWeb day year token =
+    printfn "Fetching input from website" 
     setToken token |> ignore
     async {
         let! result = httpClient.GetAsync(construcUrl year day) |> Async.AwaitTask
@@ -51,9 +52,9 @@ let private preProcessLines lines =
     |> Seq.map (fun (s:string) -> s.Trim())
     |> Seq.filter (fun s -> s.Length > 0)
 
-let getPuzzleInput day year token =
+let getPuzzleInput day year token forceDownload =
     let fileInfo = getInputFileInfo day year token
-    if fileInfo.Exists then
+    if fileInfo.Exists && not forceDownload then
         File.ReadAllLines(fileInfo.FullName)
         |> preProcessLines
     else
