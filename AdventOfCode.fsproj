@@ -6,7 +6,9 @@
     <UserSecretsId>2a19541a-4799-4d5d-9fad-febbcd3502ed</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Utility\IntCodeComputer.fs" />
     <Compile Include="Utility\InputFetcher.fs" />
+    <Compile Include="2019\Year2019Day5.fs" />
     <Compile Include="2019\Year2019Day4.fs" />
     <Compile Include="2019\Year2019Day3.fs" />
     <Compile Include="2019\Year2019Day2.fs" />

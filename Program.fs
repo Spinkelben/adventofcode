@@ -16,6 +16,7 @@ let private puzzleMap year day =
                 | "2" -> Some Year2019Day2.main
                 | "3" -> Some Year2019Day3.main
                 | "4" -> Some Year2019Day4.main
+                | "5" -> Some Year2019Day5.main
                 | _   -> None
     | _      -> None
 
@@ -25,7 +26,7 @@ let getAuthToken =
 
 
 let printResult result =
-    printfn "Solution Part1: %s. Solution Part2: %s" (fst result) (snd result)
+    printfn "Solution Part1: %s. \nSolution Part2: %s." (fst result) (snd result)
 
 [<EntryPoint>]
 let main argv =
