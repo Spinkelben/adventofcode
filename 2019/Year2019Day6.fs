@@ -60,7 +60,7 @@ let addChild tree child nodeName  =
     | Orbits (name, _) -> 
         addChild' tree nodeName child name []
 
-
+(*
 let assembleTree (input :OrbitTree seq) =
     let rec assembleTree' tree list map =
         match tree with
@@ -91,22 +91,8 @@ let assembleTree (input :OrbitTree seq) =
         |> Map.ofSeq
 
     assembleTree' (Seq.head input) (Map.toList treeMap) treeMap
-            
-
-            
-
-    let treeMap =
-        input
-        |> Seq.map (fun t -> 
-            match t with
-            | Leaf name -> (name, t)
-            | Orbits (name, _) -> (name, t))
-        |> Map.ofSeq 
-    
-
-
-    
-
+   
+*)
 
 let main input =
     let part1 =
