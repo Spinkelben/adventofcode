@@ -2,108 +2,140 @@
 
 type OrbitTree =
     | Leaf of name : string
-    | Orbits of name : string * sattelites: Map<string, OrbitTree> 
+    | Orbits of name : string * satellites: list<OrbitTree>
 
 
 let parsePairAsOrbitTree (pairLine : string) =
-    let bodies = pairLine.Split('c')
-    let sattelite = 
-        Map.empty.Add(bodies.[1], Leaf (name =  bodies.[1]))
+    let bodies = pairLine.Split(')')
+    Orbits(name = bodies.[0], satellites = [ Leaf(  bodies.[1] ) ])
 
-    Orbits(name = bodies.[1], sattelites = sattelite)
-  
-
-let findParent nodeName tree =
-    let rec findParent' nodeName tree childList =
-        match childList with
-        | c :: cs ->
-            match findParent' nodeName c [] with
-            | Some parent -> Some parent
-            | None -> findParent' nodeName c cs
-        | [] -> 
-            match tree with
-            | Leaf _ -> None
-            | Orbits (name, sattelites) ->
-                if sattelites.ContainsKey(nodeName) then
-                    Some tree
-                else
-                    let sattliteList = 
-                        Map.toList sattelites
-                        |> List.map (fun (key, value) -> value)
-                    findParent' nodeName tree sattliteList
-
-    findParent' nodeName tree []
-
-let addChild tree child nodeName  =
-    let rec addChild' tree nodeName child childName satteliteList =
+let addChild tree child =
+    let rec addChild' tree nodeName child = 
         match tree with
         | Leaf name -> 
             if name = nodeName then
-                Some (Orbits(name, Map.empty.Add(childName, child)))
+                Orbits(name, child), true
             else
-                None
-        | Orbits (name, sattelites) ->
+                tree, false
+        | Orbits (name, satellites) ->
             if name = nodeName then
-                Some (Orbits(name, Map.add childName child sattelites))
+                Orbits(name, List.append child satellites), true
             else
-                match satteliteList with
-                | c :: cs -> 
-                    match addChild' (snd c) nodeName child childName [] with
-                    | Some node -> Some (Orbits (name, Map.add (fst c) (node) sattelites))
-                    | None -> addChild' tree nodeName child childName cs
-                | [] ->
-                    addChild' tree nodeName child childName (Map.toList sattelites)
-    
+                let recResults =
+                    List.map (fun t ->
+                        addChild' t nodeName child)
+                        satellites
+
+                Orbits(name, List.map fst recResults), 
+                List.fold (fun acc (_, result) -> acc || result) false recResults
     match child with
-    | Leaf name -> 
-        addChild' tree nodeName child name []
-    | Orbits (name, _) -> 
-        addChild' tree nodeName child name []
+    | Leaf name -> tree, false
+    | Orbits (name, sattelites) -> addChild' tree name sattelites
 
-(*
-let assembleTree (input :OrbitTree seq) =
-    let rec assembleTree' tree list map =
+
+let assembleTree (input :OrbitTree seq) rootNodeName =
+    let rec assembleTree' tree (looseNodes :list<OrbitTree>) =
+        let reaminingNodes, resultingTree = 
+            looseNodes
+            |> Seq.fold 
+                (fun (leftOver, accTree) node -> 
+                    let (newTree, isDifferent) = addChild accTree node
+                    if isDifferent then
+                        leftOver, newTree
+                    else
+                        (node :: leftOver), newTree)
+                (list.Empty, tree)
+
+        match reaminingNodes with
+        | _ :: _ -> assembleTree' resultingTree reaminingNodes
+        | [] -> [], resultingTree
+
+    let root = 
+        Seq.find (fun x -> 
+            match x with
+            | Leaf name -> name = rootNodeName
+            | Orbits (name, _) -> name = rootNodeName)
+            input
+
+    let _, tree = assembleTree' root (Seq.filter (fun x -> x <> root) input |> List.ofSeq)
+    tree
+                   
+let countIndirectOrbits tree =
+    let rec countIndirectOrbits' tree depth =
         match tree with
-        | Leaf _ ->
-            failwith "tree cannot be a leaf node"
-        | Orbits (name, sattelites) ->
-            match (snd list) with
-            | x :: xs ->
-                match x with
-                | Leaf xName ->
-                    failwith "tree cannot be a leaf node"
-                | Orbits (xName, xSattelites) ->
-                    match addChild tree x xName with
-                    | Some newTree -> assembleTree' newTree xs (Map.remove xName map)
-                    | None -> assembleTree' tree xs map
-            | [] ->
-                if map.Count = 1 then
-                    tree
-                else
-                    assembleTree' tree (Map.toList map) map
-                
-    let treeMap = 
-        input
-        |> Seq.map (fun i -> 
-            match i with
-            | Leaf name -> (name, i)
-            | Orbits (name, sattelites) -> (name, i))
-        |> Map.ofSeq
+        | Leaf _ -> max (depth - 1) 0
+        | Orbits (_, children) -> 
+            let childCount = 
+                children 
+                |> List.fold (fun acc c -> acc + (countIndirectOrbits' c (depth + 1))) 0
+            
+            childCount + max (depth - 1) 0
 
-    assembleTree' (Seq.head input) (Map.toList treeMap) treeMap
-   
-*)
+    countIndirectOrbits' tree 0
+
+let findNearestAncestor tree node1Name node2Name =
+    let rec findNearestAncestor' tree depth = 
+        match tree with
+        | Leaf name ->
+            name = node1Name, name = node2Name, depth
+        | Orbits (name, satellite) ->
+            let results = 
+                List.map  
+                    (fun t -> findNearestAncestor' t (depth + 1))
+                    satellite
+                |> List.filter (fun r -> 
+                    match r with
+                    | (false, false, _) -> false
+                    | _ -> true)
+            if results.Length = 1 then
+                results.Head
+            else if results.Length = 2 then
+                true, true, depth
+            else
+                false, false, depth
+        
+    findNearestAncestor' tree 0
+
+let rec getNodeDepth tree nodeName depth =
+    match tree with
+    | Leaf name -> 
+        if name = nodeName then
+            Some depth
+        else 
+            None
+    | Orbits (name, satellites) ->
+        if name = nodeName then
+            Some depth
+        else
+            List.fold (fun acc v -> match getNodeDepth v nodeName (depth + 1) with
+                                    | Some r -> Some r
+                                    | None -> acc)
+                None
+                satellites
 
 let main input =
+    let tree = 
+        assembleTree (Seq.map parsePairAsOrbitTree input) "COM"
+
     let part1 =
         let directOrbits =
             Seq.length input
-
-
-
-        ""
+        let indirectOrbits = countIndirectOrbits tree
+        directOrbits + indirectOrbits
 
     let part2 = 
-        ""
+        let (_, _, commonAncestorDepth) =
+            findNearestAncestor tree "YOU" "SAN"
+        let meDepth =
+            match getNodeDepth tree "YOU" 0 with
+            | Some v -> v
+            | None -> 0
 
-    part1, part2
+        let santaDepth =
+            match getNodeDepth tree "SAN" 0 with
+            | Some v -> v
+            | None -> 00
+
+        (meDepth - commonAncestorDepth) + (santaDepth - commonAncestorDepth) - 2
+
+    part1.ToString(), part2.ToString()

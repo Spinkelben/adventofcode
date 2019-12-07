@@ -1,6 +1,6 @@
 # AdventOfCode
 
-This is my repo for AdventOfCode solutions in F#. I am  new to the language so expect weird patterns and dirty hacks. 
+This is my repo for AdventOfCode solutions in F#. I am  new to the language so expect weird patterns and dirty hacks.
 
 ## How to build
 
@@ -25,13 +25,14 @@ Example: `dotnet run 2019 4`
 
 ### 2019
 
-- Day 1: The Tyranny of the Rocket Equation 
+- Day 1: The Tyranny of the Rocket Equation
 - Day 2: 1202 Program Alarm
 - Day 3: Crossed Wires
 - Day 4: Secure Container
 - Day 5: Sunny with a Chance of Asteroids
+- Day 6: Universal Orbit Map
 
-### 2018 
+### 2018
 
 - Day 1: Chronal Calibration
 - Day 2: Inventory Management System
