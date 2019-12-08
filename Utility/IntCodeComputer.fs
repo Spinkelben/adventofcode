@@ -13,7 +13,7 @@ let private getParameter (program :int array) opCode pCounter index =
         program.[pCounter + 1 + index]
     | _ -> failwith "Pramter Mode Parsing Error!"
 
-let private executeInstruction (program : int array) pCounter input =
+let private executeInstruction (program : int array) pCounter input output =
     let opCode = program.[pCounter]
     let infixOperation op =
         let resultIdx = program.[pCounter + 3]
@@ -23,36 +23,47 @@ let private executeInstruction (program : int array) pCounter input =
         program
 
     match opCode  % 100 with
-    | 1 -> infixOperation (fun x y -> x + y), pCounter + 4, 1
-    | 2 -> infixOperation (fun x y -> x * y), pCounter + 4, 2
+    | 1 -> infixOperation (fun x y -> x + y), pCounter + 4, 1, input, output
+    | 2 -> infixOperation (fun x y -> x * y), pCounter + 4, 2, input, output
     | 3 -> 
-        Array.set program (program.[pCounter + 1]) input
-        program, pCounter + 2, 3
+        match input with
+        | i :: is ->
+            Array.set program (program.[pCounter + 1]) i
+            program, pCounter + 2, 3, is, output
+        | [] ->
+            program, pCounter, 100, input, output
     | 4 -> 
-        emitOutput ((getParameter program opCode pCounter 0).ToString())
-        program, pCounter + 2, 4
+        let out = getParameter program opCode pCounter 0
+        emitOutput (out.ToString())
+        program, pCounter + 2, 4, input, out :: output
     | 5 ->
         if getParameter program opCode pCounter 0 <> 0 then
-            program, getParameter program opCode pCounter 1, 5
+            program, getParameter program opCode pCounter 1, 5, input, output
         else
-            program, pCounter + 3, 5
+            program, pCounter + 3, 5, input, output
     | 6 ->
         if getParameter program opCode pCounter 0 = 0 then
-            program, getParameter program opCode pCounter 1, 6
+            program, getParameter program opCode pCounter 1, 6, input, output
         else
-            program, pCounter + 3, 6
-    | 7 -> infixOperation (fun x y -> if x < y then 1 else 0), pCounter + 4, 7
-    | 8 -> infixOperation (fun x y -> if x = y then 1 else 0), pCounter + 4, 8
-    | 99 -> program, pCounter, 99
+            program, pCounter + 3, 6, input, output 
+    | 7 -> infixOperation (fun x y -> if x < y then 1 else 0), pCounter + 4, 7, input, output
+    | 8 -> infixOperation (fun x y -> if x = y then 1 else 0), pCounter + 4, 8, input, output
+    | 99 -> program, pCounter, 99, input, output
     | _ ->  failwith "Program Parsing Error!"
 
-let executeProgram inputProgram input =
+let executeProgram inputProgram (input :list<int>) pCounter =
     let program = Array.copy inputProgram
-    let rec executeProgram' program pCounter lastOpCode =
-        if lastOpCode = 99 then
-            program
-        else
-            let newProgram, newpCounter, opCode = executeInstruction program pCounter input
-            executeProgram' newProgram newpCounter opCode
+    let pStart = match pCounter with
+                 | Some v -> v
+                 | None -> 0
 
-    executeProgram' program 0 0
+    let rec executeProgram' program pCounter lastOpCode programInput programOutput =
+        if lastOpCode = 99 then // Terminated
+            (programOutput, pCounter, true), program
+        else if (lastOpCode) = 100 then // Waiting for input 
+            (programOutput, pCounter, false), program
+        else
+            let newProgram, newpCounter, opCode, newInput, newOutput = executeInstruction program pCounter programInput programOutput
+            executeProgram' newProgram newpCounter opCode newInput newOutput
+
+    executeProgram' program pStart 0 input list.Empty

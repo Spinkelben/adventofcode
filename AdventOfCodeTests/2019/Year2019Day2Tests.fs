@@ -22,9 +22,9 @@ let part2Values : obj array seq =
 [<MemberData("part1Values")>]
 let ``Part1 Test`` (input :seq<string>, expected) =
     let program = (Year2019Day2.formatInput input)
-    let result = executeProgram program 0
-    result |> should equal expected
-
+    let _, program = executeProgram program [0] None
+    program |> should equal expected
+    
 [<Theory(Skip="No examples provided")>]
 [<MemberData("part2Values")>]
 let ``Part2 Test`` (input :seq<string>, expected) =

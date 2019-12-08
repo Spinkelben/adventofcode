@@ -1,4 +1,4 @@
-﻿module Year2019Day6
+﻿module Year2019Day6Tests
 
 open System
 open Xunit
@@ -37,9 +37,6 @@ let part2Values : obj array seq =
             "K)YOU"; 
             "I)SAN"; }; "4" |];
     }
-
-
-
 
 [<Theory>]
 [<MemberData("part1Values")>]

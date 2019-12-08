@@ -13,13 +13,13 @@ let main input =
     printfn "Computer part 1:"
     let part1 =
          let program = formatInput input
-         let endProgram = executeProgram program 1
+         let _, endProgram = executeProgram program [1] None
          endProgram.[0].ToString()
 
     printfn "Computer part 2:"
     let part2 = 
         let program = formatInput input
-        let endProgram = executeProgram program 5
+        let _, endProgram = executeProgram program [5] None
         endProgram.[0].ToString()
 
     part1, part2
