@@ -3,67 +3,103 @@
 let private emitOutput output =
     printfn "Computer Says: %s" output
 
-let private getParameter (program :int array) opCode pCounter index =
+let private getValue (program : int64 array) memory (index : int64)=
+    if index >= int64 program.Length then
+        if not (Map.containsKey index memory) then
+            0L
+        else
+            memory.Item index
+    else 
+        program.[(int index)]
+
+let private setValue (program : int64 array) memory (index : int64) value =
+    if index >= int64 program.Length then
+        Map.add index value memory
+    else
+        Array.set program (int index) value
+        memory
+
+let private getParameter (program :int64 array) opCode pCounter index baseOffset memory =
     let parameterMode = (opCode % (pown 10 (3 + index))) / (pown 10 (2 + index))
     match parameterMode with
     | 0 -> 
         let idx = program.[pCounter + 1 + index]
-        program.[idx]
+        getValue program memory idx
     | 1 ->
         program.[pCounter + 1 + index]
+    | 2 ->
+        let idx = program.[pCounter + 1 + index] + baseOffset
+        getValue program memory idx
     | _ -> failwith "Pramter Mode Parsing Error!"
 
-let private executeInstruction (program : int array) pCounter input output =
-    let opCode = program.[pCounter]
+
+
+let private executeInstruction ((program : int64 array), memory) pCounter input output baseOffset =
+    let opCode = int program.[pCounter]
     let infixOperation op =
         let resultIdx = program.[pCounter + 3]
-        let param1 = getParameter program opCode pCounter 0
-        let param2 = getParameter program opCode pCounter 1
-        Array.set program resultIdx (op param1 param2)
-        program
+        let param1 = getParameter program opCode pCounter 0 baseOffset memory
+        let param2 = getParameter program opCode pCounter 1 baseOffset memory
+        program, setValue program memory resultIdx (op param1 param2)
 
     match opCode  % 100 with
-    | 1 -> infixOperation (fun x y -> x + y), pCounter + 4, 1, input, output
-    | 2 -> infixOperation (fun x y -> x * y), pCounter + 4, 2, input, output
+    | 1 -> infixOperation (fun x y -> x + y), pCounter + 4, 1, input, output, baseOffset
+    | 2 -> infixOperation (fun x y -> x * y), pCounter + 4, 2, input, output, baseOffset
     | 3 -> 
         match input with
         | i :: is ->
-            Array.set program (program.[pCounter + 1]) i
-            program, pCounter + 2, 3, is, output
+            let idx = getParameter program opCode pCounter 0 baseOffset memory
+            let otherIdx = (program.[pCounter + 1])
+            let newMemory = setValue program memory otherIdx i
+            (program, newMemory), pCounter + 2, 3, is, output, baseOffset
         | [] ->
-            program, pCounter, 100, input, output
+            (program, memory), pCounter, 100, input, output, baseOffset
     | 4 -> 
-        let out = getParameter program opCode pCounter 0
+        let out = getParameter program opCode pCounter 0 baseOffset memory
         emitOutput (out.ToString())
-        program, pCounter + 2, 4, input, out :: output
+        (program, memory), pCounter + 2, 4, input, out :: output, baseOffset
     | 5 ->
-        if getParameter program opCode pCounter 0 <> 0 then
-            program, getParameter program opCode pCounter 1, 5, input, output
+        if getParameter program opCode pCounter 0 baseOffset memory <> 0L  then
+            let nextAddress = getParameter program opCode pCounter 1 baseOffset memory
+            (program, memory), int nextAddress, 5, input, output, baseOffset
         else
-            program, pCounter + 3, 5, input, output
+            (program, memory), pCounter + 3, 5, input, output, baseOffset
     | 6 ->
-        if getParameter program opCode pCounter 0 = 0 then
-            program, getParameter program opCode pCounter 1, 6, input, output
+        if getParameter program opCode pCounter 0 baseOffset memory = 0L then
+            let nextAddress = getParameter program opCode pCounter 1 baseOffset memory
+            (program, memory), int nextAddress, 6, input, output, baseOffset
         else
-            program, pCounter + 3, 6, input, output 
-    | 7 -> infixOperation (fun x y -> if x < y then 1 else 0), pCounter + 4, 7, input, output
-    | 8 -> infixOperation (fun x y -> if x = y then 1 else 0), pCounter + 4, 8, input, output
-    | 99 -> program, pCounter, 99, input, output
+            (program, memory), pCounter + 3, 6, input, output, baseOffset
+    | 7 -> infixOperation (fun x y -> if x < y then 1L else 0L), pCounter + 4, 7, input, output, baseOffset
+    | 8 -> infixOperation (fun x y -> if x = y then 1L else 0L), pCounter + 4, 8, input, output, baseOffset
+    | 9 -> 
+        let newBaseOffset = baseOffset + (getParameter program opCode pCounter 0 baseOffset memory)
+        (program, memory), pCounter + 2, 9, input, output, newBaseOffset
+    | 99 -> (program, memory), pCounter, 99, input, output, baseOffset
     | _ ->  failwith "Program Parsing Error!"
 
-let executeProgram inputProgram (input :list<int>) pCounter =
+let executeProgram inputProgram (input :list<int64>) pCounter inputMemory baseOffset =
     let program = Array.copy inputProgram
     let pStart = match pCounter with
                  | Some v -> v
                  | None -> 0
+    let memory = 
+         match inputMemory with
+         | Some m -> m
+         | None -> Map.empty
+    let baseStart = match baseOffset with
+                    | Some v -> v
+                    | None -> 0L
 
-    let rec executeProgram' program pCounter lastOpCode programInput programOutput =
+
+    let rec executeProgram' (program, memory) pCounter lastOpCode programInput programOutput baseOffset =
         if lastOpCode = 99 then // Terminated
-            (programOutput, pCounter, true), program
+            (List.rev programOutput, pCounter, true), (program, memory)
         else if (lastOpCode) = 100 then // Waiting for input 
-            (programOutput, pCounter, false), program
+            (List.rev programOutput, pCounter, false), (program, memory)
         else
-            let newProgram, newpCounter, opCode, newInput, newOutput = executeInstruction program pCounter programInput programOutput
-            executeProgram' newProgram newpCounter opCode newInput newOutput
+            let (newProgram, newMemory), newpCounter, opCode, newInput, newOutput, newBaseOffset =
+                executeInstruction (program, memory) pCounter programInput programOutput baseOffset
+            executeProgram' (newProgram, newMemory) newpCounter opCode newInput newOutput newBaseOffset
 
-    executeProgram' program pStart 0 input list.Empty
+    executeProgram' (program, memory) pStart 0 input list.Empty baseStart

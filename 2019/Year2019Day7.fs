@@ -19,16 +19,16 @@ let permutationGeneratror fullList =
 let formatInput (input : string seq) =
     let result = 
         (Seq.head input).Split(',')
-        |> Array.map int
+        |> Array.map int64
     result
 
 let main input =
-    let ampifierPipeLine program (settings :seq<int>) =
+    let ampifierPipeLine program (settings :seq<int64>) =
         let rec ampifierPipeLine' curPrograms lastOutput =
             let newPrograms, output, isTerminated =
                 List.fold (fun (nextPrograms, prevOutput, prevIsTerminated) (program, pCounter) ->
-                    let (output, resultPCounter, isTerminated), resultProgram =
-                        executeProgram program prevOutput (Some pCounter)
+                    let (output, resultPCounter, isTerminated), (resultProgram, _) =
+                        executeProgram program prevOutput (Some pCounter) None None
                     ((resultProgram, resultPCounter) :: nextPrograms), output, isTerminated)
                     ([], lastOutput, false)
                     curPrograms
@@ -40,12 +40,12 @@ let main input =
                 
 
         let output, isTerminated, newPrograms =
-            (Seq.fold (fun (state : int list * bool * (int array * int) list) i -> 
+            (Seq.fold (fun (state : int64 list * bool * (int64 array * int) list) i -> 
                 let nextInput, _, nextPrograms = state
-                let (output, pCounter, isTerminated), currProgram = 
-                    executeProgram program [ i; nextInput.[0] ] None
+                let (output, pCounter, isTerminated), (currProgram, _) = 
+                    executeProgram program [ i; nextInput.[0] ] None None None
                 output, isTerminated, ((currProgram, pCounter) :: nextPrograms))
-                ([ 0 ], true, [])
+                ([ 0L ], true, [])
                 settings)
         if isTerminated then
             output
@@ -57,7 +57,7 @@ let main input =
         let program =
             formatInput input
         let sequences = 
-            permutationGeneratror (seq { 0; 1; 2; 3; 4; })
+            permutationGeneratror (seq { 0L; 1L; 2L; 3L; 4L; })
         sequences
         |> Seq.map (fun modeSequence -> 
             ampifierPipeLine program modeSequence)
@@ -69,7 +69,7 @@ let main input =
         let program =
             formatInput input
         let sequences = 
-            permutationGeneratror (seq { 5; 6; 7; 8; 9; })
+            permutationGeneratror (seq { 5L; 6L; 7L; 8L; 9L; })
         sequences
         |> Seq.map (fun modeSequence -> 
             ampifierPipeLine program modeSequence)
