@@ -42,21 +42,19 @@ let private getParameter (program :int64 array) opCode pCounter index baseOffset
         let idx = program.[pCounter + 1 + index] + baseOffset
         getValue program memory idx
 
-let private writeLocation (program : int64 array) memory opCode pCounter index baseOffset value =
+let private getDestinationIndex (program : int64 array) opCode pCounter index baseOffset =
     match getParamterMode opCode index with
     | Position ->
-        let idx = program.[pCounter + 1 + index]
-        setValue program memory idx value
+        program.[pCounter + 1 + index]
     | Relative ->
-        let idx = program.[pCounter + 1 + index] + baseOffset
-        setValue program memory idx value
+        program.[pCounter + 1 + index] + baseOffset
     | Immidiate ->
         failwith "Cannot write to literal"
 
 let private executeInstruction ((program : int64 array), memory) pCounter input output baseOffset =
     let opCode = int program.[pCounter]
     let infixOperation op =
-        let resultIdx = program.[pCounter + 3]
+        let resultIdx = getDestinationIndex program opCode pCounter 2 baseOffset
         let param1 = getParameter program opCode pCounter 0 baseOffset memory
         let param2 = getParameter program opCode pCounter 1 baseOffset memory
         program, setValue program memory resultIdx (op param1 param2)
@@ -67,7 +65,8 @@ let private executeInstruction ((program : int64 array), memory) pCounter input 
     | 3 -> 
         match input with
         | i :: is ->
-            let newMemory = writeLocation program memory opCode pCounter 0 baseOffset i
+            let idx = getDestinationIndex program opCode pCounter 0 baseOffset
+            let newMemory = setValue program memory idx i
             (program, newMemory), pCounter + 2, 3, is, output, baseOffset
         | [] ->
             (program, memory), pCounter, 100, input, output, baseOffset

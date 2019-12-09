@@ -9,6 +9,10 @@ let main (input :string seq) =
         List.head output
 
     let part2 =
-        ""
+        let program =
+            (Seq.head input).Split(",")
+            |> Array.map int64
+        let (output, _, _), _ = IntCodeComputer.executeProgram program [2L] None None None
+        List.head output
 
-    part1.ToString(), part2
+    part1.ToString(), part2.ToString()

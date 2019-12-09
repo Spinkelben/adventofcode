@@ -33,6 +33,7 @@ Example: `dotnet run 2019 4`
 - Day 6: Universal Orbit Map
 - Day 7: Amplification Circuit
 - Day 8: Space Image Format
+- Day 9: Sensor Boost 
 
 ### 2018
 
