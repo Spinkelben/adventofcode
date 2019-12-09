@@ -1,5 +1,10 @@
 ﻿module IntCodeComputer
 
+type ParamterType =
+| Immidiate
+| Position
+| Relative
+
 let private emitOutput output =
     printfn "Computer Says: %s" output
 
@@ -19,20 +24,34 @@ let private setValue (program : int64 array) memory (index : int64) value =
         Array.set program (int index) value
         memory
 
-let private getParameter (program :int64 array) opCode pCounter index baseOffset memory =
-    let parameterMode = (opCode % (pown 10 (3 + index))) / (pown 10 (2 + index))
-    match parameterMode with
-    | 0 -> 
-        let idx = program.[pCounter + 1 + index]
-        getValue program memory idx
-    | 1 ->
-        program.[pCounter + 1 + index]
-    | 2 ->
-        let idx = program.[pCounter + 1 + index] + baseOffset
-        getValue program memory idx
+let private getParamterMode opCode index =
+    match (opCode % (pown 10 (3 + index))) / (pown 10 (2 + index)) with 
+    | 0 -> Position
+    | 1 -> Immidiate
+    | 2 -> Relative
     | _ -> failwith "Pramter Mode Parsing Error!"
 
+let private getParameter (program :int64 array) opCode pCounter index baseOffset memory =
+    match getParamterMode opCode index with
+    | Position -> 
+        let idx = program.[pCounter + 1 + index]
+        getValue program memory idx
+    | Immidiate ->
+        program.[pCounter + 1 + index]
+    | Relative ->
+        let idx = program.[pCounter + 1 + index] + baseOffset
+        getValue program memory idx
 
+let private writeLocation (program : int64 array) memory opCode pCounter index baseOffset value =
+    match getParamterMode opCode index with
+    | Position ->
+        let idx = program.[pCounter + 1 + index]
+        setValue program memory idx value
+    | Relative ->
+        let idx = program.[pCounter + 1 + index] + baseOffset
+        setValue program memory idx value
+    | Immidiate ->
+        failwith "Cannot write to literal"
 
 let private executeInstruction ((program : int64 array), memory) pCounter input output baseOffset =
     let opCode = int program.[pCounter]
@@ -48,9 +67,7 @@ let private executeInstruction ((program : int64 array), memory) pCounter input 
     | 3 -> 
         match input with
         | i :: is ->
-            let idx = getParameter program opCode pCounter 0 baseOffset memory
-            let otherIdx = (program.[pCounter + 1])
-            let newMemory = setValue program memory otherIdx i
+            let newMemory = writeLocation program memory opCode pCounter 0 baseOffset i
             (program, newMemory), pCounter + 2, 3, is, output, baseOffset
         | [] ->
             (program, memory), pCounter, 100, input, output, baseOffset
