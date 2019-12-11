@@ -1,4 +1,5 @@
 ﻿module Year2019Day10
+open System
 
 let parseAsteroidMap input = 
     Seq.mapi (fun yIndex line -> 
@@ -21,6 +22,12 @@ let gcd a b =
     else 
         gcd' babs aabs
 
+let normalizeDirection direction = 
+    let x, y = direction
+    match gcd x y with 
+    | 0 -> x, y
+    | d -> x / d, y / d
+
 let getPointsOnLine source direction mapSize =
     let xLimit, xDirection = if (fst direction) > 0 then (fst mapSize),1 else 0,-1
     let yLimit, yDirection = if (snd direction) > 0 then (snd mapSize),1 else 0,-1
@@ -34,10 +41,7 @@ let getPointsOnLine source direction mapSize =
                 xShadow, snd(source)
             }
     | x, y -> 
-            let dx, dy = 
-                match gcd x y with 
-                | 0 -> x, y
-                | d -> x / d, y / d
+            let dx, dy = normalizeDirection (x, y)
             Seq.zip 
                 (seq {
                     for xShadow in (fst source) .. dx .. xLimit -> xShadow
@@ -80,6 +84,14 @@ let getHiddenAsteroids source asteroidMap mapSize =
 let getMapDimensions (input : string seq) =
     (Seq.head input).Length, Seq.length input
 
+let calculateDegrees direction =
+    let x, y = direction
+    (atan(y / x) / Math.PI) * 180.0
+
+let vectorLength vector =
+    let x, y = vector
+    sqrt( x ** 2.0 + y ** 2.0)
+
 let main input =
     let xMax, yMax = getMapDimensions input 
     let asteroidMap = parseAsteroidMap input
@@ -98,36 +110,49 @@ let main input =
             |> Seq.fold (fun (asteroidCount, coord) kvp ->
                 let curVisibleAsteroids = asteroidMap.Count - kvp.Value - 1
                 if curVisibleAsteroids > asteroidCount then
-                    asteroidCount, coord
-                else 
                     curVisibleAsteroids, kvp.Key
+                else 
+                    asteroidCount, coord
                 )
                 (0, (-1, -1))
 
-        let headingList = Seq.initInfinite (fun index -> 
-            let modIndex = index % (xMax * 2 + (yMax - 2) * 2)
-            if modIndex < (xMax - 1) then
-                modIndex, 0
-            else if modIndex < (xMax - 1) + (yMax - 1) then
-                xMax - 1, modIndex - (xMax - 1)
-            else if modIndex < (xMax - 1) * 2 + yMax then
-                (xMax - 1) - (modIndex - (xMax - 1 + yMax - 1)), (yMax - 1)
-            else
-                0, (yMax - 1) - (modIndex - ((xMax - 1) * 2) - (yMax - 1)))
+        let groupedAsteroids =
+            asteroidMap
+            |> Map.remove laserCoordinate
+            |> Seq.groupBy (fun kvp -> 
+                getDirection laserCoordinate kvp.Key
+                |> normalizeDirection)
+            |> Seq.map (fun ((x, y), asteroids) -> 
+                calculateDegrees (double x, double y), asteroids)
+            |> Seq.map (fun (coord, asteroids) ->
+                let sortedAsteroids = 
+                    Seq.sortBy (fun (kvp : Collections.Generic.KeyValuePair<(int * int), char>) -> 
+                        let x,y = getDirection laserCoordinate kvp.Key
+                        vectorLength (float x, float y)) asteroids
+                coord, sortedAsteroids)
+            |> List.ofSeq
+            |> List.sortBy (fun(degrees, _) -> (degrees + 269.0) % 360.0)
 
-        let rec shootAsteroid headingSeq aMap (resultList : list<int * int>) =
-            let current = Seq.head headingSeq
-            if List.length resultList = 200 then
-                List.head resultList
-            else 
-                match getHitAsteroid laserCoordinate (Seq.head headingSeq) (xMax, yMax) asteroidMap with
-                | Some coord -> 
-                    shootAsteroid (Seq.tail headingSeq) (Map.remove coord aMap) (coord :: resultList)
-                | None -> 
-                    shootAsteroid (Seq.tail headingSeq) aMap resultList
+        let rec shootAsteroids (currentList : list<float * seq<Collections.Generic.KeyValuePair<(int * int), char>>>) nextList count =
+            match currentList with
+            | (degree, asteroids) :: xs -> 
+                if count = 200 then
+                    (Seq.head asteroids).Key
+                else
+                    let remainingAsteroids = Seq.tail asteroids
+                    shootAsteroids xs ((degree, remainingAsteroids) :: nextList) (count + 1)
+            | [] -> 
+                let directionsWithAsteroids = 
+                    List.filter     
+                        (fun (deg, asteroidSeq) ->
+                            Seq.length asteroidSeq > 0) 
+                        nextList
+                match directionsWithAsteroids with
+                | [] -> (-1, -1)
+                | _ -> shootAsteroids (List.rev directionsWithAsteroids) [] count
 
         let result = 
-            shootAsteroid (headingList |> Seq.skip (fst laserCoordinate)) asteroidMap []
+            shootAsteroids groupedAsteroids [] 1
         result
 
     part1.ToString(), part2.ToString()
