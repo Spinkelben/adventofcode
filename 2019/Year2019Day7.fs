@@ -27,7 +27,7 @@ let main input =
         let rec ampifierPipeLine' curPrograms lastOutput =
             let newPrograms, output, isTerminated =
                 List.fold (fun (nextPrograms, prevOutput, prevIsTerminated) (program, pCounter) ->
-                    let (output, resultPCounter, isTerminated), (resultProgram, _) =
+                    let (output, resultPCounter, isTerminated), (resultProgram, _, _) =
                         executeProgram program prevOutput (Some pCounter) None None
                     ((resultProgram, resultPCounter) :: nextPrograms), output, isTerminated)
                     ([], lastOutput, false)
@@ -42,7 +42,7 @@ let main input =
         let output, isTerminated, newPrograms =
             (Seq.fold (fun (state : int64 list * bool * (int64 array * int) list) i -> 
                 let nextInput, _, nextPrograms = state
-                let (output, pCounter, isTerminated), (currProgram, _) = 
+                let (output, pCounter, isTerminated), (currProgram, _, _) = 
                     executeProgram program [ i; nextInput.[0] ] None None None
                 output, isTerminated, ((currProgram, pCounter) :: nextPrograms))
                 ([ 0L ], true, [])

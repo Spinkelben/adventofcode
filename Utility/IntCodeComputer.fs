@@ -72,7 +72,7 @@ let private executeInstruction ((program : int64 array), memory) pCounter input 
             (program, memory), pCounter, 100, input, output, baseOffset
     | 4 -> 
         let out = getParameter program opCode pCounter 0 baseOffset memory
-        emitOutput (out.ToString())
+        // emitOutput (out.ToString())
         (program, memory), pCounter + 2, 4, input, out :: output, baseOffset
     | 5 ->
         if getParameter program opCode pCounter 0 baseOffset memory <> 0L  then
@@ -110,9 +110,9 @@ let executeProgram inputProgram (input :list<int64>) pCounter inputMemory baseOf
 
     let rec executeProgram' (program, memory) pCounter lastOpCode programInput programOutput baseOffset =
         if lastOpCode = 99 then // Terminated
-            (List.rev programOutput, pCounter, true), (program, memory)
+            (List.rev programOutput, pCounter, true), (program, memory, baseOffset)
         else if (lastOpCode) = 100 then // Waiting for input 
-            (List.rev programOutput, pCounter, false), (program, memory)
+            (List.rev programOutput, pCounter, false), (program, memory, baseOffset)
         else
             let (newProgram, newMemory), newpCounter, opCode, newInput, newOutput, newBaseOffset =
                 executeInstruction (program, memory) pCounter programInput programOutput baseOffset

@@ -22,7 +22,7 @@ let part2Values : obj array seq =
 [<MemberData("part1Values")>]
 let ``Part1 Test`` (input :seq<string>, expected) =
     let program = (Year2019Day2.formatInput input)
-    let _, (program, _) = executeProgram program [0L] None None None
+    let _, (program, _, _) = executeProgram program [0L] None None None
     program |> should equal expected
     
 [<Theory(Skip="No examples provided")>]

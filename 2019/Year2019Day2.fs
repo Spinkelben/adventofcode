@@ -13,14 +13,14 @@ let main (input :string seq) =
         let program = formatInput input
         Array.set program 1 12L
         Array.set program 2 2L
-        let _, (endProgram, _) = executeProgram program [0L] None None None
+        let _, (endProgram, _, _) = executeProgram program [0L] None None None
         endProgram.[0].ToString()
 
     let part2 =
         let runAndReturnInput program noun verb =
             Array.set program 1 noun
             Array.set program 2 verb
-            let _, (result, _) = executeProgram program [0L] None None None
+            let _, (result, _, _) = executeProgram program [0L] None None None
             result.[0]
 
         let originalProgram = formatInput input

@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Utility\IntCodeComputer.fs" />
     <Compile Include="Utility\InputFetcher.fs" />
+    <Compile Include="2019\Year2019Day11.fs" />
     <Compile Include="2019\Year2019Day10.fs" />
     <Compile Include="2019\Year2019Day9.fs" />
     <Compile Include="2019\Year2019Day8.fs" />
