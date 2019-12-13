@@ -80,7 +80,7 @@ let main input =
         |> Seq.map parseMoon
 
     let part1 =
-        let finalState = runSimulation moonList 1000
+        let finalState = runSimulation moonList 200000
         calculateEnergy finalState
 
     let part2 = 

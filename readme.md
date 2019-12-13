@@ -35,6 +35,7 @@ Example: `dotnet run 2019 4`
 - Day 8: Space Image Format
 - Day 9: Sensor Boost
 - Day 11: Space Police
+- Day 13: Care Package
 
 ### 2018
 
