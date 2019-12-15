@@ -9,7 +9,7 @@ type Tile =
     | Paddle
     | Ball
 
-let printScreen (tiles : Map<int * int, Tile>)=
+let printScreen tiles tileMap =
     let tileList = Map.toList tiles
     let maxX = 
         List.map (fun ((x, _), _) -> x) tileList
@@ -34,14 +34,7 @@ let printScreen (tiles : Map<int * int, Tile>)=
         tileList
 
     [for y in 0 .. ySize - 1 do 
-        Array.map (fun char -> 
-            match char with
-            | Block -> "░"
-            | Wall -> "▓"
-            | Paddle -> "█"
-            | Ball -> "*"
-            | Empty -> " "
-        ) picture.[y,*] 
+        Array.map tileMap picture.[y,*] 
         |> Array.fold (fun state char -> state + char) ""]
     |> List.fold (fun acc line -> acc + line + "\n") "\n"
 
@@ -96,10 +89,18 @@ let autoplay (screen : Map<int*int,Tile>)  =
 let main (input : seq<string>) =
     let program = (Seq.head input).Split(",") |> Array.map int64
 
+    let tileMap char = 
+        match char with
+        | Block -> "░"
+        | Wall -> "▓"
+        | Paddle -> "█"
+        | Ball -> "*"
+        | Empty -> " "
+
     let part1 =
         let (output, _, _), _ = IntCodeComputer.executeProgram program [] None None None
         let screen, score = parseOutput output Map.empty
-        printfn "%s" (printScreen screen)
+        printfn "%s" (printScreen screen tileMap)
         printfn "Score: %i" score 
         Map.fold (fun count key value -> 
                 if value = Block then
@@ -122,7 +123,7 @@ let main (input : seq<string>) =
                 score'
             else 
                 Console.Clear()
-                printfn "%s" (printScreen screen')
+                printfn "%s" (printScreen screen' tileMap)
                 printfn "Score: %i" score'
                 runGame nextPCounter nextProgram nextMemory nextBaseOffset screen' score'
 
