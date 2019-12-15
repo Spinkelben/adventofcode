@@ -6,8 +6,10 @@
     <UserSecretsId>2a19541a-4799-4d5d-9fad-febbcd3502ed</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Utility\ArrayHelpers.fs" />
     <Compile Include="Utility\IntCodeComputer.fs" />
     <Compile Include="Utility\InputFetcher.fs" />
+    <Compile Include="2019\Year2019Day15.fs" />
     <Compile Include="2019\Year2019Day14.fs" />
     <Compile Include="2019\Year2019Day13.fs" />
     <Compile Include="2019\Year2019Day12.fs" />

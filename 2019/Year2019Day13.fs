@@ -9,35 +9,6 @@ type Tile =
     | Paddle
     | Ball
 
-let printScreen tiles tileMap =
-    let tileList = Map.toList tiles
-    let maxX = 
-        List.map (fun ((x, _), _) -> x) tileList
-        |> List.max
-    let minX = 
-        List.map (fun ((x, _), _) -> x) tileList
-        |> List.min
-    let maxY = 
-        List.map (fun ((_, y), _) -> y) tileList
-        |> List.max
-    let minY = 
-        List.map (fun ((_, y), _) -> y) tileList
-        |> List.min
-
-    let xOffset = if minX < 0 then -minX else 0
-    let yOffset = if minY < 0 then -minY else 0
-    let ySize = (1 + maxY - minY)
-    let xSize = (1 + maxX - minX)
-    let picture = Array2D.create ySize xSize Empty
-    List.iter (fun ((x, y), color) -> 
-            Array2D.set picture (y + yOffset) (x + xOffset) color) 
-        tileList
-
-    [for y in 0 .. ySize - 1 do 
-        Array.map tileMap picture.[y,*] 
-        |> Array.fold (fun state char -> state + char) ""]
-    |> List.fold (fun acc line -> acc + line + "\n") "\n"
-
 let parseOutput output existingScreen =
     let rec parseOutput' outputList acc =
         let screen, curScore = acc
@@ -97,10 +68,14 @@ let main (input : seq<string>) =
         | Ball -> "*"
         | Empty -> " "
 
+    let printScreen tiles =
+        let dense = ArrayHelpers.sparseToDense tiles Empty
+        ArrayHelpers.printTileMap dense tileMap
+
     let part1 =
         let (output, _, _), _ = IntCodeComputer.executeProgram program [] None None None
         let screen, score = parseOutput output Map.empty
-        printfn "%s" (printScreen screen tileMap)
+        printfn "%s" (printScreen screen)
         printfn "Score: %i" score 
         Map.fold (fun count key value -> 
                 if value = Block then
@@ -123,7 +98,7 @@ let main (input : seq<string>) =
                 score'
             else 
                 Console.Clear()
-                printfn "%s" (printScreen screen' tileMap)
+                printfn "%s" (printScreen screen')
                 printfn "Score: %i" score'
                 runGame nextPCounter nextProgram nextMemory nextBaseOffset screen' score'
 
