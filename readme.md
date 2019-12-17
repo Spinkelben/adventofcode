@@ -38,9 +38,33 @@ Example: `dotnet run 2019 4`
 - Day 13: Care Package
 - Day 14: Space Stoichiometry
 - Day 15: Oxygen System
+- Day 17: Set and Forget
 
 ### 2018
 
 - Day 1: Chronal Calibration
 - Day 2: Inventory Management System
 
+## Notes
+
+### 2019 Day 17
+For part 2 I didn't do any coding, to get my program. I simply looked at the printed output, and translated the path to instructions e.g. R6 or L4. Then I used a text editor to make line breaks where the pattern repeated. This made it easy to move the splits one instruction forwards or backwards and I was able to discover the prorgam in two attemps. 
+
+This I the breakdown I ended up with:
+```
+A: R12,L8,L4,L4
+B: L8,R6,L6
+C: L8,L4,R12,L6,L4
+
+
+R12,L8,L4,L4,
+L8,R6,L6
+R12,L8,L4,L4,
+L8,R6,L6
+L8,L4,R12,L6,L4
+R12,L8,L4,L4,
+L8,L4,R12,L6,L4
+R12,L8,L4,L4,
+L8,L4,R12,L6,L4,
+L8,R6,L6
+```
