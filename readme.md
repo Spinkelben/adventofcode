@@ -34,6 +34,7 @@ Example: `dotnet run 2019 4`
 - Day 7: Amplification Circuit
 - Day 8: Space Image Format
 - Day 9: Sensor Boost
+- Day 10: Monitoring Station
 - Day 11: Space Police
 - Day 13: Care Package
 - Day 14: Space Stoichiometry

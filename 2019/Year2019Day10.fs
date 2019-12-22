@@ -1,5 +1,6 @@
 ﻿module Year2019Day10
 open System
+open System.Collections.Generic
 
 let parseAsteroidMap input = 
     Seq.mapi (fun yIndex line -> 
@@ -84,13 +85,18 @@ let getHiddenAsteroids source asteroidMap mapSize =
 let getMapDimensions (input : string seq) =
     (Seq.head input).Length, Seq.length input
 
-let calculateDegrees direction =
-    let x, y = direction
-    (atan(y / x) / Math.PI) * 180.0
+let dotProd u v =
+    (fst u * fst v) + (snd u * snd v)
 
 let vectorLength vector =
     let x, y = vector
     sqrt( x ** 2.0 + y ** 2.0)
+
+let calculateDegrees u v =
+    let u' = (double (fst u), double (snd u))
+    let v' = (double (fst v), double (snd v))
+    let rad = acos ((dotProd u' v') / ((vectorLength u') * (vectorLength v')))
+    (rad / Math.PI) * 180.0
 
 let main input =
     let xMax, yMax = getMapDimensions input 
@@ -119,28 +125,33 @@ let main input =
         let groupedAsteroids =
             asteroidMap
             |> Map.remove laserCoordinate
-            |> Seq.groupBy (fun kvp -> 
-                getDirection laserCoordinate kvp.Key
-                |> normalizeDirection)
-            |> Seq.map (fun ((x, y), asteroids) -> 
-                calculateDegrees (double x, double y), asteroids)
+            |> Seq.groupBy (fun (kvp : KeyValuePair<(int * int), char>) -> 
+                let laserDirection = (0, -1)
+                let asteroidDirection = getDirection laserCoordinate kvp.Key
+                if fst kvp.Key < (fst laserCoordinate) then
+                   Math.Round(360.0 - calculateDegrees laserDirection asteroidDirection, 10)
+                 else
+                    Math.Round(calculateDegrees laserDirection asteroidDirection, 10))
+
             |> Seq.map (fun (coord, asteroids) ->
                 let sortedAsteroids = 
-                    Seq.sortBy (fun (kvp : Collections.Generic.KeyValuePair<(int * int), char>) -> 
+                    Seq.sortBy (fun (kvp : KeyValuePair<(int * int), char>) -> 
                         let x,y = getDirection laserCoordinate kvp.Key
                         vectorLength (float x, float y)) asteroids
                 coord, sortedAsteroids)
             |> List.ofSeq
-            |> List.sortBy (fun(degrees, _) -> (degrees + 269.0) % 360.0)
+            |> List.sortBy (fun(degrees, _) -> degrees)
 
-        let rec shootAsteroids (currentList : list<float * seq<Collections.Generic.KeyValuePair<(int * int), char>>>) nextList count =
+        let rec shootAsteroids (currentList : list<float * seq<KeyValuePair<(int * int), char>>>) nextList count destroyList =
             match currentList with
             | (degree, asteroids) :: xs -> 
+                let asteroid = (Seq.head asteroids).Key
+                let nextDestroyList = asteroid :: destroyList
                 if count = 200 then
-                    (Seq.head asteroids).Key
+                    nextDestroyList
                 else
                     let remainingAsteroids = Seq.tail asteroids
-                    shootAsteroids xs ((degree, remainingAsteroids) :: nextList) (count + 1)
+                    shootAsteroids xs ((degree, remainingAsteroids) :: nextList) (count + 1) nextDestroyList
             | [] -> 
                 let directionsWithAsteroids = 
                     List.filter     
@@ -148,11 +159,15 @@ let main input =
                             Seq.length asteroidSeq > 0) 
                         nextList
                 match directionsWithAsteroids with
-                | [] -> (-1, -1)
-                | _ -> shootAsteroids (List.rev directionsWithAsteroids) [] count
+                | [] -> []
+                | _ -> shootAsteroids (List.rev directionsWithAsteroids) [] count destroyList
 
         let result = 
-            shootAsteroids groupedAsteroids [] 1
-        result
+            shootAsteroids groupedAsteroids [] 1 []
+        if result.Length > 0 then
+            let (x, y) = List.head result
+            x * 100 + y
+        else
+            0
 
     part1.ToString(), part2.ToString()
