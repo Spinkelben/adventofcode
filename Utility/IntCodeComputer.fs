@@ -51,7 +51,7 @@ let private getDestinationIndex (program : int64 array) opCode pCounter index ba
     | Immidiate ->
         failwith "Cannot write to literal"
 
-let private executeInstruction ((program : int64 array), memory) pCounter input output baseOffset =
+let private executeInstruction  ((program : int64 array), memory) pCounter input output baseOffset =
     let opCode = int program.[pCounter]
     let infixOperation op =
         let resultIdx = getDestinationIndex program opCode pCounter 2 baseOffset

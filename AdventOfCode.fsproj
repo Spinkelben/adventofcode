@@ -9,6 +9,8 @@
     <Compile Include="Utility\ArrayHelpers.fs" />
     <Compile Include="Utility\IntCodeComputer.fs" />
     <Compile Include="Utility\InputFetcher.fs" />
+    <Compile Include="2019\Year2019Day23.fs" />
+    <Compile Include="2019\Year2019Day22.fs" />
     <Compile Include="2019\Year2019Day21.fs" />
     <Compile Include="2019\Year2019Day20.fs" />
     <Compile Include="2019\Year2019Day19.fs" />

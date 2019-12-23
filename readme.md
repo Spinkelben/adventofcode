@@ -42,6 +42,7 @@ Example: `dotnet run 2019 4`
 - Day 17: Set and Forget
 - Day 19: Tractor Beam
 - Day 21: Springdroid Adventure
+- Day 23: Category Six
 
 ### 2018
 
@@ -99,3 +100,8 @@ OR H T      # T = H is Ground
 OR E T      # T = H is Ground or E is Ground
 AND T J     # J =  ((A or B or C has hole) and D is ground) AND (H is Ground or E is Ground)
 ```
+
+### Year 2019 Day 23
+
+I made the assumption that keeping track of timings didn't matter. Otherwise the Intcode computer had to be changed, which would cause many previous challenges to have to be updated. Instead I run every computer until it requests input. Then I gather the all output pacakges and feed them back into the computers for the next step. In case multiple computers would write to 255 during one step I would be in trouble. I would have no way of determining wich computer came first, but fortunately that did not happen.
+
