@@ -22,6 +22,14 @@ let part1Values : obj array seq =
                 "<x=9, y=-8, z=-3>   ";};
                100;
                1940; |];
+
+        yield [| seq { 
+            "<x=-2, y=9, z=-5>      ";
+            "<x=16, y=19, z=9>      ";
+            "<x=0, y=3, z=6>        ";
+            "<x=11, y=0, z=11>      ";};
+           200000;
+           126050; |];
     }
 
 let velocityTest : obj array seq =
@@ -136,6 +144,23 @@ let energyCalc : obj array seq =
         |];
     }
 
+let part2Values : obj array seq =
+    seq {
+        yield [| seq { 
+           "<x=-1, y=0, z=2>";
+           "<x=2, y=-10, z=-7>";
+           "<x=4, y=-8, z=8>";
+           "<x=3, y=5, z=-1>";};
+              "2772"; |];
+
+        yield [| seq { 
+                "<x=-8, y=-10, z=0>  ";
+                "<x=5, y=5, z=10>    ";
+                "<x=2, y=-7, z=3>    ";
+                "<x=9, y=-8, z=-3>   ";};
+               "4686774924"; |];
+    }
+
 [<Theory>]
 [<MemberData("energyCalc")>]
 let ``Energy Calculation Test`` (moons :seq<Moon>, expected) =
@@ -153,18 +178,18 @@ let ``VelocityUpdate Test`` (input :seq<string>, expected) =
 [<MemberData("simulationData")>]
 let ``SimulationTest Test`` (input :seq<string>, steps, expected) =
     let moons = Seq.map parseMoon input 
-    let updatedMoons = runSimulation moons steps
+    let updatedMoons, _ = runSimulation moons steps
     Seq.toList updatedMoons |> should equal expected
 
 [<Theory>]
 [<MemberData("part1Values")>]
 let ``Part1 Test`` (input :seq<string>, steps, expected) =
     let moons = Seq.map parseMoon input 
-    let finalState = runSimulation moons steps
+    let finalState, _ = runSimulation moons steps
     calculateEnergy finalState  |> should equal expected
 
 [<Theory>]
 [<MemberData("part2Values")>]
 let ``Part2 Test`` (input :seq<string>, expected) =
-    let _, part2 = Year2019Day10.main input
+    let _, part2 = Year2019Day12.main input
     part2 |> should equal expected
