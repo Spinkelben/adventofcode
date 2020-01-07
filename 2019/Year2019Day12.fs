@@ -36,7 +36,6 @@ let applyGravity moonA moonB =
     let aPositionX, aPositionY, aPositionZ = moonA.position
     let bPositionX, bPositionY, bPositionZ = moonB.position
     let aVelocityX, aVelocityY, aVelocityZ = moonA.velocity
-    let bVelocityX, bVelocityY, bVelocityZ = moonB.velocity
 
     let newAX = applyGravityOnAxis aPositionX bPositionX aVelocityX
     let newAY = applyGravityOnAxis aPositionY bPositionY aVelocityY
@@ -107,8 +106,6 @@ let calculateEnergy moonList=
     |> Seq.map (fun m -> 
         (absSum m.position)  * (absSum m.velocity))
     |> Seq.sum
-
-//let calculateCombinedCycle x y z =
     
 let gcd a b =
     let rec gcd' a b =

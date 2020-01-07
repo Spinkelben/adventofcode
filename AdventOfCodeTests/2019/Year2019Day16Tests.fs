@@ -68,11 +68,11 @@ let part2Values : obj array seq =
 let ``Part1 Test`` (input :seq<string>, phases, expected) =
     let pInput = parseInput input
     let output = fft pInput phases
-    let result = take8First output
+    let result = takeNFirst 8 output
     result |> should equal expected
 
 [<Theory>]
 [<MemberData("part2Values")>]
 let ``Part2 Test`` (input :seq<string>, phases, expected) =
-    let _, part2 = Year2019Day14.main input
+    let _, part2 = Year2019Day16.main input
     part2 |> should equal expected

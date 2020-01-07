@@ -40,6 +40,7 @@ Example: `dotnet run 2019 4`
 - Day 13: Care Package
 - Day 14: Space Stoichiometry
 - Day 15: Oxygen System
+- Day 16: Flawed Frequency Transmission
 - Day 17: Set and Forget
 - Day 19: Tractor Beam
 - Day 21: Springdroid Adventure
@@ -51,6 +52,10 @@ Example: `dotnet run 2019 4`
 - Day 2: Inventory Management System
 
 ## Notes
+
+### 2019 Day 16
+
+For part 2 I had to cheat a bit and read on the subreddit to get some hints. After looking at a few solutions and re-reading the problem description, I first realized that the last digit of the input always is the same. That made me see the pattern that the value of any digit only depends on the digits from previous iteration that where the index is equal or higher. So any digits lower than the offset can safely be ignored. The final piece was realizing that the offset given in the input alway would be so large that the pattern would always be 1. That made calculating the sums even easier, as under that constraint each digit is now only dependent on the digits value in the previous iteration and the next digit in the same iteration! As the last digit is always the same, calculating each iteration is as simple as summing the digits, starting from the end of the list.
 
 ### 2019 Day 17
 For part 2 I didn't do any coding, to get my program. I simply looked at the printed output, and translated the path to instructions e.g. R6 or L4. Then I used a text editor to make line breaks where the pattern repeated. This made it easy to move the splits one instruction forwards or backwards and I was able to discover the prorgam in two attemps.

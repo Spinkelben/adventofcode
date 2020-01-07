@@ -1,15 +1,14 @@
 ﻿module Year2019Day16
 
-let pattern elementNumber =
+let patternAtIndex elementNumber index =
     let digits = [ 0; 1; 0; -1; ]
-    Seq.initInfinite (fun (index) -> 
-        let i = index % (elementNumber * 4)
-        digits.Item (i / elementNumber))
+    let i = index % (elementNumber * 4)
+    digits.Item (i / elementNumber)
 
 let oneFftPhase input =
     let oneFftdigit input elementNumber =
-        Seq.zip input (Seq.skip 1 (pattern elementNumber))
-        |> Seq.map (fun (i, j) -> i * j)
+        input
+        |> Seq.mapi (fun idx value -> (patternAtIndex elementNumber (idx + 1)) * value)
         |> Seq.sum
     let _, result =
         input |> Seq.fold (fun (count, result) _ ->
@@ -31,8 +30,8 @@ let parseInput (input : string seq) =
     |> Seq.map (fun c -> int (c.ToString()))
     |> List.ofSeq
 
-let take8First input =
-    Seq.take 8 input
+let takeNFirst n input =
+    Seq.take n input
     |> Seq.map (fun x -> x.ToString())
     |> Seq.fold (fun acc x -> acc + x) ""
 
@@ -52,14 +51,42 @@ let gcd a b =
 let repeatLength patternLength inputSeqLength =
     patternLength / (gcd patternLength inputSeqLength)
 
+
+let doIterationsBottomUp numIterations input =
+    let rec doIterationsBottomUp' iterationNum currentInput =
+        if iterationNum = numIterations then
+            currentInput
+        else
+            let nextInput = 
+                List.scanBack (fun v state ->
+                     (v + state) % 10)
+                    currentInput
+                    0
+            doIterationsBottomUp' (iterationNum + 1) nextInput
+
+    doIterationsBottomUp' 0 input
+
+
+
 let main input =
     let input = parseInput input
 
     let part1 =
         fft input 100
-        |> take8First
+        |> takeNFirst 8
 
     let part2 =
-        ""
+        let fullInputLength = (input.Length * 10000)
+        let offset = int (takeNFirst 7 input)
+        let inputLength = fullInputLength - offset
+        let skipLength = offset % input.Length
+        let repeatCount = inputLength / input.Length
+        let offsetInput = [ yield! (List.skip skipLength input);
+                            for i in 1 .. repeatCount do yield! input]
+        if not (patternAtIndex offset offset = 1) then
+            failwith "Offset not big enough"
+
+        let result = doIterationsBottomUp 100 offsetInput
+        takeNFirst 8 result
 
     part1, part2
