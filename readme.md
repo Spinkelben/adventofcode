@@ -23,6 +23,10 @@ Example: `dotnet run 2019 4`
 
 ## Days Completed
 
+### 2020
+
+- Day 1: Report Repair
+
 ### 2019
 
 - Day 1: The Tyranny of the Rocket Equation
