@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AdventOfCodeCSharp": {
+      "commandName": "Project",
+      "commandLineArgs": "2020 1"
+    }
+  }
+}
