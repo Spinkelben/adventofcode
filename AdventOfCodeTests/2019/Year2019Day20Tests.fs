@@ -72,9 +72,9 @@ YN......#               VT..#....QG
 let part2Values : obj array seq =
     seq { 
         yield [|
-            "#########
+            seq  { "#########
 #b.A.@.a#
-#########"
+#########" };
             "8";
         |];
     }

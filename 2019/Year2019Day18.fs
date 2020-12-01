@@ -77,8 +77,9 @@ let openDoor doorMap door maze =
 let getDoorFromKey (key : char) =
     char ((int key) - (int 'a' - int 'A'))
 
-let solveMazeImproved map startPoint doorMap keyCount : (int * char list) =
-    let rec solveMazeImproved' 
+//let solveMazeImproved map startPoint doorMap keyCount : (int * char list) =
+    //let rec solveMazeImproved' 
+    
 
 let solveMaze map startPoint doorMap keyCount : (int * char list) =
     let rec solveMaze' map startPoint doorMap steps keysFound : (int * char list) =
