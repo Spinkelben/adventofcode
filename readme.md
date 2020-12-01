@@ -1,6 +1,6 @@
 # AdventOfCode
 
-This is my repo for AdventOfCode solutions. 2019 is in F#. I am  new to the language so expect weird patterns and dirty hacks. 2020 is in C#.
+This is my repo for AdventOfCode solutions. 2019 is in F#. I am  new to the language so expect weird patterns and dirty hacks. 2020 is in C#, a language I am very familiar withm I have no excuses :P.
 
 ## How to build
 
