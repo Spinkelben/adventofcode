@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace AdventOfCodeCSharpTests
 {
-    public class Year2020DayTests
+    public class Year2020Day1Tests
     {
         [Theory]
         [MemberData(nameof(TestData))]

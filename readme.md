@@ -26,6 +26,7 @@ Example: `dotnet run 2019 4`
 ### 2020
 
 - Day 1: Report Repair
+- Day 2:  Password Philosophy
 
 ### 2019
 

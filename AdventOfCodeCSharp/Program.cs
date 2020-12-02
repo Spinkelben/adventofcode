@@ -10,7 +10,8 @@ namespace AdventOfCodeCSharp
     {
         private static Dictionary<(int, int), IAocPuzzleSolver> puzzleMap = new Dictionary<(int, int), IAocPuzzleSolver>()
         {
-            {(2020, 1), new Year2020Day1() },    
+            {(2020, 1), new Year2020Day1() },
+            {(2020, 2), new Year2020Day2() },
         };
 
         static void Main(string[] args)
