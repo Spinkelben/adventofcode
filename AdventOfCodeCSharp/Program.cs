@@ -12,6 +12,7 @@ namespace AdventOfCodeCSharp
         {
             {(2020, 1), new Year2020Day1() },
             {(2020, 2), new Year2020Day2() },
+            {(2020, 3), new Year2020Day3() },
         };
 
         static void Main(string[] args)

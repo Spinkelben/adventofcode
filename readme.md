@@ -27,6 +27,7 @@ Example: `dotnet run 2019 4`
 
 - Day 1: Report Repair
 - Day 2:  Password Philosophy
+- Day 3: Toboggan Trajectory
 
 ### 2019
 
