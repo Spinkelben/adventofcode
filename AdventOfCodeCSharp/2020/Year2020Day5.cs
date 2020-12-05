@@ -18,7 +18,26 @@ namespace AdventOfCodeCSharp.Year2020
 
         public string Part2(IList<string> input)
         {
-            return "";
+            var parsedBoardingPasses = input
+                .Where(s => s.Length > 0)
+                .Select(bp => ParseBoardingPass(bp))
+                .ToList();
+
+            var minId = parsedBoardingPasses.Min(p => p.id);
+            var maxId = parsedBoardingPasses.Max(p => p.id);
+            var boardingPassDict = parsedBoardingPasses.ToDictionary(p => p.id);
+
+            for (int i = minId; i <= maxId; i++)
+            {
+                if (!boardingPassDict.ContainsKey(i) 
+                    && boardingPassDict.ContainsKey(i - 1)
+                    && boardingPassDict.ContainsKey(i + 1))
+                {
+                    return $"{i}";
+                }
+            }
+
+            return "No noarding pass found";
         }
 
         internal (int row, int column, int id) ParseBoardingPass(string boardingPass)
