@@ -5,6 +5,7 @@ using System.Text;
 
 namespace AdventOfCodeCSharp.Year2020
 {
+    [AdventOfCodeSolution(2020, 2)]
     internal class Year2020Day2 : IAocPuzzleSolver
     {
         public string Part1(IList<string> input)
@@ -19,6 +20,11 @@ namespace AdventOfCodeCSharp.Year2020
 
         private bool IsValidPassword(string s, int interpretation)
         {
+            if (s.Length == 0)
+            {
+                return false;
+            }
+
             var (password, first, second, letter) = ParsePolicyString(s);
             return interpretation switch 
             {

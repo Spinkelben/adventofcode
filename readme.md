@@ -28,6 +28,7 @@ Example: `dotnet run 2019 4`
 - Day 1: Report Repair
 - Day 2:  Password Philosophy
 - Day 3: Toboggan Trajectory
+- Day 4: Passport Processing
 
 ### 2019
 
@@ -115,5 +116,8 @@ AND T J     # J =  ((A or B or C has hole) and D is ground) AND (H is Ground or 
 
 ### Year 2019 Day 23
 
-I made the assumption that keeping track of timings didn't matter. Otherwise the Intcode computer had to be changed, which would cause many previous challenges to have to be updated. Instead I run every computer until it requests input. Then I gather the all output pacakges and feed them back into the computers for the next step. In case multiple computers would write to 255 during one step I would be in trouble. I would have no way of determining wich computer came first, but fortunately that did not happen.
+I made the assumption that keeping track of timings didn't matter. Otherwise the Intcode computer had to be changed, which would cause many previous challenges to have to be updated. Instead I run every computer until it requests input. Then I gather the all output packages and feed them back into the computers for the next step. In case multiple computers would write to 255 during one step I would be in trouble. I would have no way of determining wich computer came first, but fortunately that did not happen.
 
+### Year 2020 Day 4
+
+I made too many assumptions on the validations in part one. If I were to redo it, I would not do any validation on part one, maybe even just use a simple dictionary for the passport propreties. For part 2 the validation is specified, which makes it simpler to add. Here I had to update the existing logic I had. In short, I am not proud of this solution, but this I just for fun so I can't be bothered to improve it.

@@ -56,7 +56,7 @@ let main argv =
         else
             false
 
-    let inputLines = getPuzzleInput day year getAuthToken forceDownloadInput
+    let inputLines = getPuzzleInput day year getAuthToken forceDownloadInput true
     
     let puzzleSolver = puzzleMap year day
 

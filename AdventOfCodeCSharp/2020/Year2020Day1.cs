@@ -5,6 +5,7 @@ using System.Text;
 
 namespace AdventOfCodeCSharp.Year2020
 {
+    [AdventOfCodeSolution(2020, 1)]
     internal class Year2020Day1 : IAocPuzzleSolver
     {
         public string Part1(IList<string> input)
@@ -22,6 +23,7 @@ namespace AdventOfCodeCSharp.Year2020
         {
             return input
                 .Select(s => s.Trim())
+                .Where(s => s.Length > 0)
                 .Select(s => int.Parse(s))
                 .ToList();
         }

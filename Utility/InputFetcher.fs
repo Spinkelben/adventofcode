@@ -47,16 +47,16 @@ let private getInputFromWeb day year token =
         return splitLines
     }
 
-let private preProcessLines lines =
+let private preProcessLines removeEmptyLines lines =
     lines 
     |> Seq.map (fun (s:string) -> s.Trim())
-    |> Seq.filter (fun s -> s.Length > 0)
+    |> Seq.filter (fun s -> s.Length > 0 || not removeEmptyLines)
 
-let getPuzzleInput day year token forceDownload =
+let getPuzzleInput day year token forceDownload removeEmptyLines =
     let fileInfo = getInputFileInfo day year token
     if fileInfo.Exists && not forceDownload then
         File.ReadAllLines(fileInfo.FullName)
-        |> preProcessLines
+        |> preProcessLines removeEmptyLines
     else
         getInputFromWeb day year token |> Async.RunSynchronously
-        |> preProcessLines
+        |> preProcessLines removeEmptyLines
