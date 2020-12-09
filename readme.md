@@ -33,6 +33,7 @@ Example: `dotnet run 2019 4`
 - Day 6: Custom Customs
 - Day 7: Handy Haversacks
 - Day 8: Handheld Halting
+- Day 9: Encoding Error
 
 ### 2019
 
