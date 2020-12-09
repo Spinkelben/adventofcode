@@ -31,6 +31,7 @@ Example: `dotnet run 2019 4`
 - Day 4: Passport Processing
 - Day 5: Binary Boarding
 - Day 6: Custom Customs
+- Day 7: Handy Haversacks
 
 ### 2019
 

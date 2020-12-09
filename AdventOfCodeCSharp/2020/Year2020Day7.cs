@@ -26,7 +26,51 @@ namespace AdventOfCodeCSharp.Year2020
                 .Select(r => RuleParser(r))
                 .ToDictionary(r => (r.Variant, r.Color));
 
-            return "";
+            // The shiny gold back doesn't count hence -1
+            var count = GetNumberOfBagsRecursive(
+                rules,
+                ("shiny", "gold")) - 1;
+            return $"{count}";
+        }
+
+        private long GetNumberOfBagsInside(
+            (string variant, string color) bag,
+            Dictionary<(string variant, string color), Rule> rules)
+        {
+            var stack = new Stack<(int count, (string variant, string color) bag)>();
+            stack.Push((1, bag));
+            var multiplier = 1;
+            var sum = 0;
+
+            while (stack.Count > 0)
+            {
+                var (currentCount, currentBag) = stack.Pop();
+                multiplier /= currentCount;
+                var rule = rules[currentBag];
+                sum += multiplier * currentCount;
+                multiplier *= currentCount;
+                foreach (var nestedbag in rule.Contains)
+                {
+                    stack.Push(nestedbag);
+                }
+            }
+
+            return sum;
+
+        }
+
+        private long GetNumberOfBagsRecursive(
+            Dictionary<(string variant, string color), Rule> rules, 
+            (string variant, string color) bag)
+        {
+            var bagRule = rules[bag];
+            long sum = 1;
+            foreach (var nestedBag in bagRule.Contains)
+            {
+                sum += nestedBag.number * GetNumberOfBagsRecursive(rules, nestedBag.Item2);
+            }
+
+            return sum;
         }
 
         private HashSet<Rule> GetContainingBags(
