@@ -10,12 +10,19 @@ namespace AdventOfCodeCSharp.Year2020
     {
         public string Part1(IList<string> input)
         {
-            var stableState = GetStableState(ToCharArray(input.Where(l => l.Length > 0)));
+            var stableState = GetStableState(ToCharArray(input.Where(l => l.Length > 0)), false);
             var numOccupiedSeats = stableState.Sum(s => s.Count(c => c == '#'));
             return $"{numOccupiedSeats}";
         }
 
-        internal List<char[]> GetNextState(List<char[]> currentState)
+        public string Part2(IList<string> input)
+        {
+            var stableState = GetStableState(ToCharArray(input.Where(l => l.Length > 0)), true);
+            var numOccupiedSeats = stableState.Sum(s => s.Count(c => c == '#'));
+            return $"{numOccupiedSeats}";
+        }
+
+        internal List<char[]> GetNextState(List<char[]> currentState, bool useLineOfSight)
         {
             var nextState = InitializeState(currentState);
 
@@ -23,20 +30,27 @@ namespace AdventOfCodeCSharp.Year2020
             {
                 for (int x = 0; x < currentState[y].Length; x++)
                 {
-                    nextState[y][x] = UpdateField(currentState, y, x);
+                    if (useLineOfSight)
+                    {
+                        nextState[y][x] = UpdateFieldLineOfSight(currentState, y, x);
+                    }
+                    else
+                    {
+                        nextState[y][x] = UpdateField(currentState, y, x);
+                    }
                 }
             }
 
             return nextState;
         }
 
-        private List<char[]> GetStableState(List<char[]> start)
+        private List<char[]> GetStableState(List<char[]> start, bool useLineOfSight)
         {
-            var next = GetNextState(start);
+            var next = GetNextState(start, useLineOfSight);
             while (!IsSeatsEqual(start, next))
             {
                 start = next;
-                next = GetNextState(start);
+                next = GetNextState(start, useLineOfSight);
             }
 
             return next;
@@ -56,6 +70,58 @@ namespace AdventOfCodeCSharp.Year2020
             }
 
             return true;
+        }
+
+        private char UpdateFieldLineOfSight(List<char[]> currentState, int y, int x)
+        {
+            return currentState[y][x] switch
+            {
+                '#' => GetChairsInLineOfSight(currentState, (x, y))
+                        .Count(c => c == '#') >= 5 ? 'L' : '#',
+                'L' => GetChairsInLineOfSight(currentState, (x, y))
+                        .Count(c => c == '#') == 0 ? '#' : 'L',
+                '.' => '.',
+                char unknown => throw new ArgumentOutOfRangeException(
+                        "currentState",
+                        $"Unsupported character encountered {unknown}"),
+            };
+        }
+
+        private IEnumerable<char> GetChairsInLineOfSight(List<char[]> currentState, (int x, int y) origin)
+        {
+            var directions = new List<(int dx, int dy)>()
+            {
+                (-1, 0),    // Left
+                (-1, -1),   // Up-Left
+                (0, -1),    // Up
+                (1, -1),    // Up-right
+                (1, 0),     // Right
+                (1, 1),     // Down right
+                (0, 1),     // Down
+                (-1, 1),    // Down-left
+            };
+
+            return directions.Select(d => Look(currentState, d, origin));
+        }
+
+        private char Look(List<char[]> currentState, (int dx, int dy) direction, (int x, int y) origin)
+        {
+            var x = direction.dx + origin.x;
+            var y = direction.dy + origin.y;
+            var seen = '.';
+
+            while (IsValidCoordinate((x, y), currentState))
+            {
+                seen = currentState[y][x];
+                if (seen == '#' || seen == 'L')
+                {
+                    return seen;
+                }
+                x += direction.dx;
+                y += direction.dy;
+            }
+
+            return seen;
         }
 
         private char UpdateField(List<char[]> currentState, int y, int x)
@@ -142,11 +208,6 @@ namespace AdventOfCodeCSharp.Year2020
             }
 
             return result;
-        }
-
-        public string Part2(IList<string> input)
-        {
-            return "";
         }
     }
 }

@@ -35,6 +35,7 @@ Example: `dotnet run 2019 4`
 - Day 8: Handheld Halting
 - Day 9: Encoding Error
 - Day 10: Adapter Array
+- Day 11: Seating System
 
 ### 2019
 

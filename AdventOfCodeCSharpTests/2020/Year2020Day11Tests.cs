@@ -13,7 +13,7 @@ namespace AdventOfCodeCSharpTests
         public void Part1StateChange(List<string> state, List<string> nextState)
         {
             var puzzleSolver = new Year2020Day11();
-            Assert.Equal(ToCharArray(nextState), puzzleSolver.GetNextState(ToCharArray(state)));
+            Assert.Equal(ToCharArray(nextState), puzzleSolver.GetNextState(ToCharArray(state), false));
         }
 
         [Theory]
@@ -30,6 +30,15 @@ namespace AdventOfCodeCSharpTests
         {
             var puzzleSolver = new Year2020Day11();
             Assert.Equal(adapterProduct.ToString(), puzzleSolver.Part2(adapters));
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataStateChange2))]
+        public void Part2StateChange(List<string> state, List<string> nextState)
+        {
+            var puzzleSolver = new Year2020Day11();
+            var actualNextState = puzzleSolver.GetNextState(ToCharArray(state), true);
+            Assert.Equal(ToCharArray(nextState), actualNextState);
         }
 
         public static IEnumerable<object[]> TestData()
@@ -224,6 +233,69 @@ namespace AdventOfCodeCSharpTests
                     "L.LLLLL.LL",
                 },
                 26
+            };
+        }
+
+        public static IEnumerable<object[]> TestDataStateChange2()
+        {
+            yield return new object[]
+            {
+                new List<string>()
+                {
+                    "L.LL.LL.LL",
+                    "LLLLLLL.LL",
+                    "L.L.L..L..",
+                    "LLLL.LL.LL",
+                    "L.LL.LL.LL",
+                    "L.LLLLL.LL",
+                    "..L.L.....",
+                    "LLLLLLLLLL",
+                    "L.LLLLLL.L",
+                    "L.LLLLL.LL",
+                },
+                new List<string>()
+                {
+                    "#.##.##.##",
+                    "#######.##",
+                    "#.#.#..#..",
+                    "####.##.##",
+                    "#.##.##.##",
+                    "#.#####.##",
+                    "..#.#.....",
+                    "##########",
+                    "#.######.#",
+                    "#.#####.##",
+                },
+            };
+
+            yield return new object[]
+            {
+                new List<string>()
+                {
+                    "#.##.##.##",
+                    "#######.##",
+                    "#.#.#..#..",
+                    "####.##.##",
+                    "#.##.##.##",
+                    "#.#####.##",
+                    "..#.#.....",
+                    "##########",
+                    "#.######.#",
+                    "#.#####.##",
+                },
+                new List<string>()
+                {
+                    "#.LL.LL.L#",
+                    "#LLLLLL.LL",
+                    "L.L.L..L..",
+                    "LLLL.LL.LL",
+                    "L.LL.LL.LL",
+                    "L.LLLLL.LL",
+                    "..L.L.....",
+                    "LLLLLLLLL#",
+                    "#.LLLLLL.L",
+                    "#.LLLLL.L#",
+                },
             };
         }
 
