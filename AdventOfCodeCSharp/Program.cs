@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace AdventOfCodeCSharp
@@ -31,11 +32,16 @@ namespace AdventOfCodeCSharp
             Console.WriteLine($"Running Year {year} day {day}");
             var solver = puzzleMap[(int.Parse(year), int.Parse(day))];
 
+            var stopWatch = Stopwatch.StartNew();
             var part1 = solver.Part1(input);
+            var part1Time = stopWatch.Elapsed;
             var part2 = solver.Part2(input);
+            stopWatch.Stop();
 
             Console.WriteLine($"Part 1: {part1}");
             Console.WriteLine($"Part 2: {part2}");
+            Console.WriteLine($"Part 1 time: {part1Time.TotalMilliseconds} ms");
+            Console.WriteLine($"Part 2 time: {(stopWatch.Elapsed - part1Time).TotalMilliseconds} ms");
         }
 
         private static Dictionary<(int, int), IAocPuzzleSolver> GetPuzzleMap()
