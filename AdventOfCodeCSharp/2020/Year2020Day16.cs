@@ -11,13 +11,7 @@ namespace AdventOfCodeCSharp.Year2020
     {
         public string Part1(IList<string> input)
         {
-            var filteredInput = input
-                .Select(s => s.Trim())
-                .ToList();
-            if (filteredInput[^1] == "")
-            {
-                filteredInput.RemoveAt(filteredInput.Count - 1);
-            }
+            List<string> filteredInput = FilterInput(input);
 
             var rules = ParseValidationRules(filteredInput).ToList();
             var tickets = ParseTickets(filteredInput);
@@ -36,7 +30,20 @@ namespace AdventOfCodeCSharp.Year2020
             return $"{invalidFields.Sum()}";
         }
 
-        private IEnumerable<List<int>> ParseTickets(IList<string> input)
+        private static List<string> FilterInput(IList<string> input)
+        {
+            var filteredInput = input
+                            .Select(s => s.Trim())
+                            .ToList();
+            if (filteredInput[^1] == "")
+            {
+                filteredInput.RemoveAt(filteredInput.Count - 1);
+            }
+
+            return filteredInput;
+        }
+
+        internal IEnumerable<List<int>> ParseTickets(IList<string> input)
         {
             var startOfTickets = input.IndexOf("nearby tickets:");
             for (int i = startOfTickets + 1; i < input.Count; i++)
@@ -45,9 +52,9 @@ namespace AdventOfCodeCSharp.Year2020
             }
         }
 
-        private IEnumerable<Rule> ParseValidationRules(IList<string> input)
+        internal IEnumerable<Rule> ParseValidationRules(IList<string> input)
         {
-            var matcher = new Regex(@"(\w+): (\d+)-(\d+) or (\d+)-(\d+)");
+            var matcher = new Regex(@"([\w ]+): (\d+)-(\d+) or (\d+)-(\d+)");
             foreach (var line in input)
             {
                 if (string.IsNullOrWhiteSpace(line))
@@ -144,7 +151,34 @@ namespace AdventOfCodeCSharp.Year2020
 
         public string Part2(IList<string> input)
         {
-            return "";
+            var filteredInput = FilterInput(input);
+            var rules = ParseValidationRules(filteredInput).ToList();
+            var tickets = ParseTickets(filteredInput);
+            var invalidFields = new List<int>();
+
+            var validTickets = tickets
+                .Where(t => t.All(f => ValidateField(f, rules)))
+                .ToList();
+
+            var columns = GetTicketColumns(validTickets);
+            var columnMapping = GetColumnNameMapping(columns, rules);
+            var myTicket = ParseMyTicket(filteredInput);
+
+            var departureFields = columnMapping
+                .Where(c => c.Key.Name.StartsWith("departure"))
+                .Select(c => myTicket[c.Value]);
+
+            return $"{departureFields.Aggregate(1L, (acc, v) => acc * v)}";
+
+        }
+
+        private List<int> ParseMyTicket(List<string> filteredInput)
+        {
+            var headerIdx = filteredInput.IndexOf("your ticket:");
+            return filteredInput[headerIdx + 1]
+                .Split(',')
+                .Select(n => int.Parse(n))
+                .ToList();
         }
 
         internal class Rule

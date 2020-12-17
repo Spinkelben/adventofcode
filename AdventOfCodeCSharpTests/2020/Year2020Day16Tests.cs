@@ -10,18 +10,28 @@ namespace AdventOfCodeCSharpTests
     { 
         [Theory]
         [MemberData(nameof(TestData))]
-        public void Part1(List<string> startingNumbers, int finalNumber)
+        public void Part1(List<string> ticketsInfo, int finalNumber)
         {
             var puzzleSolver = new Year2020Day16();
-            Assert.Equal(finalNumber.ToString(), puzzleSolver.Part1(startingNumbers));
+            Assert.Equal(finalNumber.ToString(), puzzleSolver.Part1(ticketsInfo));
         }
 
         [Theory]
         [MemberData(nameof(TestData2))]
-        public void Part2(List<string> startingNumbers, int distance)
+        public void Part2(List<string> ticketsInfo, Dictionary<string, int> actualColumnNames)
         {
+            var cleanInfo = ticketsInfo.Select(s => s.Trim())
+                .ToList();
             var puzzleSolver = new Year2020Day16();
-            Assert.Equal(distance.ToString(), puzzleSolver.Part2(startingNumbers));
+            var tickets = puzzleSolver.ParseTickets(cleanInfo);
+            var rules = puzzleSolver.ParseValidationRules(cleanInfo).ToList();
+            var columns = puzzleSolver.GetTicketColumns(tickets);
+            var map = puzzleSolver.GetColumnNameMapping(columns, rules)
+                .ToDictionary(kvp => kvp.Key.Name, kvp => kvp.Value);
+            foreach (var kvp  in actualColumnNames)
+            {
+                Assert.Equal(actualColumnNames[kvp.Key], map[kvp.Key]);
+            }
         }
 
         public static IEnumerable<object[]> TestData()
