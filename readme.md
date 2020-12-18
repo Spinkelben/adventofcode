@@ -42,6 +42,7 @@ Example: `dotnet run 2019 4`
 - Day 15: Rambunctious Recitation
 - Day 16: Ticket Translation
 - Day 17: Conway Cubes
+- Day 18: Operation Order 
 
 ### 2019
 

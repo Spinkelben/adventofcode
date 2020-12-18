@@ -18,10 +18,10 @@ namespace AdventOfCodeCSharpTests
 
         [Theory]
         [MemberData(nameof(TestData2))]
-        public void Part2(List<string> startState, int finalActive)
+        public void Part2(List<string> expression, int value)
         {
             var puzzleSolver = new Year2020Day18();
-            Assert.Equal(finalActive.ToString(), puzzleSolver.Part2(startState));
+            Assert.Equal(value.ToString(), puzzleSolver.Part2(expression));
         }
 
         public static IEnumerable<object[]> TestData()
@@ -84,15 +84,58 @@ namespace AdventOfCodeCSharpTests
         public static IEnumerable<object[]> TestData2()
         {
             yield return new object[]
-             {
+            {
                 new List<string>()
                 {
-                    ".#.",
-                    "..#",
-                    "###",
+                    "1 + 2 * 3 + 4 * 5 + 6",
                 },
-                848,
-             };
+                231,
+            };
+
+            yield return new object[]
+            {
+                new List<string>()
+                {
+                    "1 + (2 * 3) + (4 * (5 + 6))",
+                },
+                51,
+            };
+
+            yield return new object[]
+            {
+                new List<string>()
+                {
+                    "2 * 3 + (4 * 5)",
+                },
+                46,
+            };
+
+            yield return new object[]
+            {
+                new List<string>()
+                {
+                    "5 + (8 * 3 + 9 + 3 * 4 * 3)",
+                },
+                1445,
+            };
+
+            yield return new object[]
+            {
+                new List<string>()
+                {
+                    "5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))",
+                },
+                669060,
+            };
+
+            yield return new object[]
+            {
+                new List<string>()
+                {
+                    "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2",
+                },
+                23340,
+            };
         }
     }
 }
