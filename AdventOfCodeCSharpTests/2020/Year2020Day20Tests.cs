@@ -7,7 +7,7 @@ using AdventOfCodeCSharp.Year2020;
 namespace AdventOfCodeCSharpTests
 {
     public class Year2020Day20Tests
-    { 
+    {
         [Theory]
         [MemberData(nameof(TestData))]
         public void Part1(List<string> tiles, long cornerIdProduct)
@@ -23,6 +23,48 @@ namespace AdventOfCodeCSharpTests
             var puzzleSolver = new Year2020Day20();
             Assert.Equal(numMatches.ToString(), puzzleSolver.Part2(expression));
         }
+
+        [Fact]
+        public void TileOperations()
+        {
+            var lines = new List<string>()
+                {
+                    "Tile 2311:",
+                    "..##.#..#.",
+                    "##..#.....",
+                    "#...##..#.",
+                    "####.#...#",
+                    "##.##.###.",
+                    "##...#.###",
+                    ".#.#.#..##",
+                    "..#....#..",
+                    "###...#.#.",
+                    "..###..###",
+                    "          ",
+            };
+
+            var puzzleSolver = new Year2020Day20();
+            var tiles = puzzleSolver.ParseInput(lines);
+            Assert.Single(tiles);
+            var tile = tiles.First();
+            Assert.Equal("..##.#..#.", tile.GetEdge(0));
+            Assert.Equal("...#.##..#", tile.GetEdge(1));
+            Assert.Equal("..###..###", tile.GetEdge(2));
+            Assert.Equal(".#####..#.", tile.GetEdge(3));
+
+            tile.Rotation++;
+            Assert.Equal("..##.#..#.", tile.GetEdge(1));
+            Assert.Equal("#..##.#...", tile.GetEdge(2));
+            Assert.Equal("..###..###", tile.GetEdge(3));
+            Assert.Equal(".#..#####.", tile.GetEdge(0));
+
+            tile.Rotation++;
+            Assert.Equal("###..###..", tile.GetEdge(0));
+            Assert.Equal(".#..#####.", tile.GetEdge(1));
+            Assert.Equal(".#..#.##..", tile.GetEdge(2));
+            Assert.Equal("#..##.#...", tile.GetEdge(3));
+        }
+
 
         public static IEnumerable<object[]> TestData()
         {
@@ -149,55 +191,116 @@ namespace AdventOfCodeCSharpTests
             {
                 new List<string>()
                 {
-                    "42: 9 14 | 10 1                              ",
-                    "9: 14 27 | 1 26                              ",
-                    "10: 23 14 | 28 1                             ",
-                    "1: \"a\"                                     ",
-                    "11: 42 31                                    ",
-                    "5: 1 14 | 15 1                               ",
-                    "19: 14 1 | 14 14                             ",
-                    "12: 24 14 | 19 1                             ",
-                    "16: 15 1 | 14 14                             ",
-                    "31: 14 17 | 1 13                             ",
-                    "6: 14 14 | 1 14                              ",
-                    "2: 1 24 | 14 4                               ",
-                    "0: 8 11                                      ",
-                    "13: 14 3 | 1 12                              ",
-                    "15: 1 | 14                                   ",
-                    "17: 14 2 | 1 7                               ",
-                    "23: 25 1 | 22 14                             ",
-                    "28: 16 1                                     ",
-                    "4: 1 1                                       ",
-                    "20: 14 14 | 1 15                             ",
-                    "3: 5 14 | 16 1                               ",
-                    "27: 1 6 | 14 18                              ",
-                    "14: \"b\"                                    ",
-                    "21: 14 1 | 1 14                              ",
-                    "25: 1 1 | 1 14                               ",
-                    "22: 14 14                                    ",
-                    "8: 42                                        ",
-                    "26: 14 22 | 1 20                             ",
-                    "18: 15 15                                    ",
-                    "7: 14 5 | 1 21                               ",
-                    "24: 14 1                                     ",
-                    "                                             ",
-                    "abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa",
-                    "bbabbbbaabaabba                              ",
-                    "babbbbaabbbbbabbbbbbaabaaabaaa               ",
-                    "aaabbbbbbaaaabaababaabababbabaaabbababababaaa",
-                    "bbbbbbbaaaabbbbaaabbabaaa                    ",
-                    "bbbababbbbaaaaaaaabbababaaababaabab          ",
-                    "ababaaaaaabaaab                              ",
-                    "ababaaaaabbbaba                              ",
-                    "baabbaaaabbaaaababbaababb                    ",
-                    "abbbbabbbbaaaababbbbbbaaaababb               ",
-                    "aaaaabbaabaaaaababaa                         ",
-                    "aaaabbaaaabbaaa                              ",
-                    "aaaabbaabbaaaaaaabbbabbbaaabbaabaaa          ",
-                    "babaaabbbaaabaababbaabababaaab               ",
-                    "aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba     ",
+                    "Tile 2311:",
+                    "..##.#..#.",
+                    "##..#.....",
+                    "#...##..#.",
+                    "####.#...#",
+                    "##.##.###.",
+                    "##...#.###",
+                    ".#.#.#..##",
+                    "..#....#..",
+                    "###...#.#.",
+                    "..###..###",
+                    "          ",
+                    "Tile 1951:",
+                    "#.##...##.",
+                    "#.####...#",
+                    ".....#..##",
+                    "#...######",
+                    ".##.#....#",
+                    ".###.#####",
+                    "###.##.##.",
+                    ".###....#.",
+                    "..#.#..#.#",
+                    "#...##.#..",
+                    "          ",
+                    "Tile 1171:",
+                    "####...##.",
+                    "#..##.#..#",
+                    "##.#..#.#.",
+                    ".###.####.",
+                    "..###.####",
+                    ".##....##.",
+                    ".#...####.",
+                    "#.##.####.",
+                    "####..#...",
+                    ".....##...",
+                    "          ",
+                    "Tile 1427:",
+                    "###.##.#..",
+                    ".#..#.##..",
+                    ".#.##.#..#",
+                    "#.#.#.##.#",
+                    "....#...##",
+                    "...##..##.",
+                    "...#.#####",
+                    ".#.####.#.",
+                    "..#..###.#",
+                    "..##.#..#.",
+                    "          ",
+                    "Tile 1489:",
+                    "##.#.#....",
+                    "..##...#..",
+                    ".##..##...",
+                    "..#...#...",
+                    "#####...#.",
+                    "#..#.#.#.#",
+                    "...#.#.#..",
+                    "##.#...##.",
+                    "..##.##.##",
+                    "###.##.#..",
+                    "          ",
+                    "Tile 2473:",
+                    "#....####.",
+                    "#..#.##...",
+                    "#.##..#...",
+                    "######.#.#",
+                    ".#...#.#.#",
+                    ".#########",
+                    ".###.#..#.",
+                    "########.#",
+                    "##...##.#.",
+                    "..###.#.#.",
+                    "          ",
+                    "Tile 2971:",
+                    "..#.#....#",
+                    "#...###...",
+                    "#.#.###...",
+                    "##.##..#..",
+                    ".#####..##",
+                    ".#..####.#",
+                    "#..#.#..#.",
+                    "..####.###",
+                    "..#.#.###.",
+                    "...#.#.#.#",
+                    "          ",
+                    "Tile 2729:",
+                    "...#.#.#.#",
+                    "####.#....",
+                    "..#.#.....",
+                    "....#..#.#",
+                    ".##..##.#.",
+                    ".#.####...",
+                    "####.#.#..",
+                    "##.####...",
+                    "##..#.##..",
+                    "#.##...##.",
+                    "          ",
+                    "Tile 3079:",
+                    "#.#.#####.",
+                    ".#..######",
+                    "..#.......",
+                    "######....",
+                    "####.#..#.",
+                    ".#...#.##.",
+                    "#.#####.##",
+                    "..#.###...",
+                    "..#.......",
+                    "..#.###...",
+                    "          ",
                 },
-                12,
+                273,
             };
         }
     }
