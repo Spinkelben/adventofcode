@@ -18,10 +18,28 @@ namespace AdventOfCodeCSharpTests
 
         [Theory]
         [MemberData(nameof(TestData2))]
-        public void Part2(List<string> expression, long numMatches)
+        public void Part2(List<string> tiles, long numMatches)
         {
             var puzzleSolver = new Year2020Day20();
-            Assert.Equal(numMatches.ToString(), puzzleSolver.Part2(expression));
+            Assert.Equal(numMatches.ToString(), puzzleSolver.Part2(tiles));
+        }
+
+        [Theory]
+        [MemberData(nameof(TestData2))]
+        public void TileTest(List<string> tilesStr, long numMatches)
+        {
+            var puzzleSolver = new Year2020Day20();
+            var tiles = puzzleSolver.ParseInput(tilesStr).ToList();
+            var edgeDict = puzzleSolver.GetEdgeDict(tiles);
+            var grid = puzzleSolver.AssembleTiles(tiles, edgeDict);
+            for (int i = 0; i < grid.Count - 1; i++)
+            {
+                for (int j = 0; j < grid[i].Count - 1; j++)
+                {
+                    Assert.Equal(grid[i][j].GetEdge(1), grid[i][j + 1].GetEdge(3));
+                    Assert.Equal(grid[i][j].GetEdge(2), grid[i + 1][j].GetEdge(0));
+                }
+            }
         }
 
         [Fact]
@@ -289,7 +307,42 @@ namespace AdventOfCodeCSharpTests
 
         }
 
-            public static IEnumerable<object[]> TestData()
+        [Fact]
+        public void Edge()
+        {
+            var puzzleSolver = new Year2020Day20();
+            var lines = new List<string>()
+            {
+                "Tile 2311:",
+                "..##.#..#.",
+                "##..#.....",
+                "#...##..#.",
+                "####.#...#",
+                "##.##.###.",
+                "##...#.###",
+                ".#.#.#..##",
+                "..#....#..",
+                "###...#.#.",
+                "..###..###",
+                "          ",
+            };
+            var tile = puzzleSolver.ParseInput(lines).First();
+
+            Assert.Equal("..##.#..#.", tile.GetEdge(0));
+            Assert.Equal("...#.##..#", tile.GetEdge(1));
+            Assert.Equal("..###..###", tile.GetEdge(2));
+            Assert.Equal(".#####..#.", tile.GetEdge(3));
+
+            tile.FlipXRelative(true);
+            tile.Rotation = 3;
+            Assert.Equal("...#.##..#", tile.GetEdge(0));
+            Assert.Equal("..###..###", tile.GetEdge(1));
+            Assert.Equal(".#####..#.", tile.GetEdge(2));
+            Assert.Equal("..##.#..#.", tile.GetEdge(3));
+
+        }
+
+        public static IEnumerable<object[]> TestData()
         {
             yield return new object[]
             {

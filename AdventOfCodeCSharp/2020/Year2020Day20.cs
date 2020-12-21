@@ -55,7 +55,9 @@ namespace AdventOfCodeCSharp.Year2020
             var grid = AssembleTiles(tiles, edgeDict);
 
             var pattern = GetPattern(grid);
-            
+            var image = AssembleImage(grid);
+            var patterns = GetAllVariations(pattern).ToList();
+            var variations = GetAllVariations(image).ToList();
 
             return string.Empty;
         }
@@ -65,7 +67,7 @@ namespace AdventOfCodeCSharp.Year2020
             var result = new List<string>();
             if (rotation == 0)
             {
-                return input;
+                return new List<string>(input);
             }
             else if (rotation == 1)
             {
@@ -102,7 +104,7 @@ namespace AdventOfCodeCSharp.Year2020
             foreach (var line in puzzle)
             {
                 StringBuilder lineBuilder = null;
-                for (int patternIdx = 0; patternIdx < line[0].Pattern.Count; patternIdx++)
+                for (int patternIdx = 0; patternIdx < line[0].GetPatternColumn(0).Length; patternIdx++)
                 {
                     lineBuilder = new StringBuilder();
                     foreach (var tile in line)
@@ -119,7 +121,74 @@ namespace AdventOfCodeCSharp.Year2020
             return result;
         }
 
-        private List<List<Tile>> AssembleTiles(List<Tile> tiles, Dictionary<string, List<(Tile, int edgeNumber, bool flipped)>> edgeDict)
+        private IEnumerable<List<string>> GetAllVariations(List<string> image)
+        {
+            foreach (var (flipX, flipY) in new List<(bool, bool)>() 
+            {
+                (false, false),
+                (false, true),
+                (true, false),
+                (true, true),
+            })
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    var result = Rotate(image, i);
+
+                    if (flipX)
+                    {
+                        result = FlipX(result);
+                    }
+
+                    if (flipY)
+                    {
+                        result = FlipY(result);
+                    }
+
+                    yield return result;
+                }
+            }
+        }
+
+        private List<string> FlipX(List<string> input)
+        {
+            var result = new List<string>();
+            foreach (var line in input)
+            {
+                result.Add(string.Join(string.Empty, line.Reverse()));
+            }
+
+            return result;
+        }
+
+        private List<string> FlipY(List<string> input)
+        {
+            var result = new List<string>(input);
+            result.Reverse();
+            return result;
+        }
+
+        private List<string> AssembleImage(List<List<Tile>> puzzle)
+        {
+            var result = new List<string>();
+            foreach (var line in puzzle)
+            {
+                for (int patternLineIdx = 1; patternLineIdx < line[0].GetPatternColumn(0).Length - 1; patternLineIdx++)
+                {
+                    StringBuilder lineBuilder = new StringBuilder();
+                    foreach (var tile in line)
+                    {
+                        lineBuilder.Append(
+                            string.Join("", tile.GetPatternLine(patternLineIdx)[1..^1]));
+                    }
+                    result.Add(lineBuilder.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        internal List<List<Tile>> AssembleTiles(List<Tile> tiles, Dictionary<string, List<(Tile, int edgeNumber, bool flipped)>> edgeDict)
         {
             var idDict = tiles.ToDictionary(t => t.Id);
             var gridSize = Math.Sqrt(tiles.Count);
@@ -217,14 +286,14 @@ namespace AdventOfCodeCSharp.Year2020
             }
             var rightPiece = matchRight[0].t;
             var downPiece = matchDown[0].t;
-            ConnectPiece(startCorner, 1, rightPiece);
-            ConnectPiece(startCorner, 2, downPiece);
-            if (GetMatchingTile(rightPiece.Id, rightPiece.GetEdge(0), edgeDict).Count() > 0
-                || GetMatchingTile(downPiece.Id, downPiece.GetEdge(3), edgeDict).Count() > 0)
-            {
-                Console.WriteLine("OopsSie");
-            }
+            ConnectPiece(startCorner, 1, rightPiece, t => GetMatchingTile(t.Id, t.GetEdge(1), edgeDict).Count() > 0);
+            ConnectPiece(startCorner, 2, downPiece, t => GetMatchingTile(t.Id, t.GetEdge(2), edgeDict).Count() > 0);
 
+            if (GetMatchingTile(rightPiece.Id, rightPiece.GetEdge(1), edgeDict).Count() == 0
+                || GetMatchingTile(downPiece.Id, downPiece.GetEdge(2), edgeDict).Count() == 0)
+            {
+                throw new Exception("Oppsiiie");
+            }
         }
 
         private IEnumerable<(Tile t, int edgeNum, bool flipped)> GetMatchingTile(int tileId, string edge, Dictionary<string, List<(Tile, int edgeNumber, bool flipped)>> edgeDict)
@@ -284,7 +353,7 @@ namespace AdventOfCodeCSharp.Year2020
                 }
                 else
                 {
-                    currentTile.Pattern.Add(line.ToCharArray());
+                    currentTile.AddLine(line.ToCharArray());
                 }
             }
 
@@ -319,17 +388,22 @@ namespace AdventOfCodeCSharp.Year2020
                 }
             }
 
-            internal List<char[]> Pattern { get; } = new List<char[]>();
+            private List<char[]> Pattern { get; } = new List<char[]>();
+
+            internal void AddLine(char[] line)
+            {
+                Pattern.Add(line);
+            }
 
             internal List<string> Edges
             {
                 get
                 {
                     var result = new List<string>();
-                    result.Add(string.Join("", Pattern[0])); // Top Edge
-                    result.Add(string.Join("", Pattern.Select(l => l[^1]))); // Right Edge
-                    result.Add(string.Join("", Pattern[^1])); // Bottom Edge
-                    result.Add(string.Join("", Pattern.Select(l => l[0]))); // Left Edge
+                    result.Add(GetEdge(0)); // Top Edge
+                    result.Add(GetEdge(1)); // Right Edge
+                    result.Add(GetEdge(2)); // Bottom Edge
+                    result.Add(GetEdge(3)); // Left Edge
                     return result;
                 }
             }
