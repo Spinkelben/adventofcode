@@ -25,22 +25,22 @@ namespace AdventOfCodeCSharpTests
         }
 
         [Fact]
-        public void TileOperations()
+        public void TileRotations()
         {
             var lines = new List<string>()
-                {
-                    "Tile 2311:",
-                    "..##.#..#.",
-                    "##..#.....",
-                    "#...##..#.",
-                    "####.#...#",
-                    "##.##.###.",
-                    "##...#.###",
-                    ".#.#.#..##",
-                    "..#....#..",
-                    "###...#.#.",
-                    "..###..###",
-                    "          ",
+            {
+                "Tile 2311:",
+                "..##.#..#.",
+                "##..#.....",
+                "#...##..#.",
+                "####.#...#",
+                "##.##.###.",
+                "##...#.###",
+                ".#.#.#..##",
+                "..#....#..",
+                "###...#.#.",
+                "..###..###",
+                "          ",
             };
 
             var puzzleSolver = new Year2020Day20();
@@ -63,10 +63,233 @@ namespace AdventOfCodeCSharpTests
             Assert.Equal(".#..#####.", tile.GetEdge(1));
             Assert.Equal(".#..#.##..", tile.GetEdge(2));
             Assert.Equal("#..##.#...", tile.GetEdge(3));
+
+            tile.Rotation++;
+            Assert.Equal("...#.##..#", tile.GetEdge(0));
+            Assert.Equal("###..###..", tile.GetEdge(1));
+            Assert.Equal(".#####..#.", tile.GetEdge(2));
+            Assert.Equal(".#..#.##..", tile.GetEdge(3));
+
+            tile.Rotation++;
+            Assert.Equal("..##.#..#.", tile.GetEdge(0));
+            Assert.Equal("...#.##..#", tile.GetEdge(1));
+            Assert.Equal("..###..###", tile.GetEdge(2));
+            Assert.Equal(".#####..#.", tile.GetEdge(3));
         }
 
+        [Fact]
+        public void TileFlips()
+        {
+            var lines = new List<string>()
+            {
+                "Tile 2311:",
+                "..##.#..#.",
+                "##..#.....",
+                "#...##..#.",
+                "####.#...#",
+                "##.##.###.",
+                "##...#.###",
+                ".#.#.#..##",
+                "..#....#..",
+                "###...#.#.",
+                "..###..###",
+                "          ",
+            };
+            var puzzleSolver = new Year2020Day20();
+            var tiles = puzzleSolver.ParseInput(lines);
+            Assert.Single(tiles);
+            var tile = tiles.First();
 
-        public static IEnumerable<object[]> TestData()
+            tile.FlipX = true;
+            Assert.Equal(".#..#.##..", tile.GetEdge(0));
+            Assert.Equal("###..###..", tile.GetEdge(2));
+            Assert.Equal("...#.##..#", tile.GetEdge(1));
+            Assert.Equal(".#####..#.", tile.GetEdge(3));
+            Assert.Equal(".....#..##", tile.GetPatternLine(1));
+
+            tile.FlipX = false;
+            tile.FlipY = true;
+
+            Assert.Equal("..##.#..#.", tile.GetEdge(0));
+            Assert.Equal("..###..###", tile.GetEdge(2));
+            Assert.Equal("#..##.#...", tile.GetEdge(1));
+            Assert.Equal(".#..#####.", tile.GetEdge(3));
+            Assert.Equal(".#.####.#.", tile.GetPatternColumn(1));
+        }
+
+        [Fact]
+        public void TileFlipAndRotate()
+        {
+            var lines = new List<string>()
+            {
+                "Tile 2311:",
+                "..##.#..#.",
+                "##..#.....",
+                "#...##..#.",
+                "####.#...#",
+                "##.##.###.",
+                "##...#.###",
+                ".#.#.#..##",
+                "..#....#..",
+                "###...#.#.",
+                "..###..###",
+                "          ",
+            };
+            var puzzleSolver = new Year2020Day20();
+            var tiles = puzzleSolver.ParseInput(lines);
+            Assert.Single(tiles);
+            var tile = tiles.First();
+
+            // Rotate then flip
+            tile.Rotation++;
+            tile.FlipX = true;
+            var topEdge = tile.GetEdge(0);
+            var rightEdge = tile.GetEdge(1);
+            var bottomEdge = tile.GetEdge(2);
+            var leftEdge = tile.GetEdge(3);
+            Assert.Equal(".#..#####.", topEdge);
+            Assert.Equal(".#..#.##..", rightEdge);
+            Assert.Equal("#..##.#...", bottomEdge);
+            Assert.Equal("###..###..", leftEdge);
+
+            // Undo
+            tile.FlipX = false;
+            tile.Rotation--;
+
+            // Flip then rotate
+            tile.FlipX = true;
+            tile.Rotation++;
+            Assert.Equal(topEdge, tile.GetEdge(0));
+            Assert.Equal(rightEdge, tile.GetEdge(1));
+            Assert.Equal(bottomEdge, tile.GetEdge(2));
+            Assert.Equal(leftEdge, tile.GetEdge(3));
+        }
+
+        [Fact]
+        public void TileRelativeFlipXAndRotate()
+        {
+            var lines = new List<string>()
+            {
+                "Tile 2311:",
+                "..##.#..#.",
+                "##..#.....",
+                "#...##..#.",
+                "####.#...#",
+                "##.##.###.",
+                "##...#.###",
+                ".#.#.#..##",
+                "..#....#..",
+                "###...#.#.",
+                "..###..###",
+                "          ",
+            };
+            var puzzleSolver = new Year2020Day20();
+            var tiles = puzzleSolver.ParseInput(lines);
+            Assert.Single(tiles);
+            var tile = tiles.First();
+
+            tile.Rotation++;
+            tile.FlipXRelative(true);
+            tile.Rotation--;
+            Assert.Equal("..##.#..#.", tile.GetEdge(0));
+            Assert.Equal("#..##.#...", tile.GetEdge(1));
+            Assert.Equal("..###..###", tile.GetEdge(2));
+            Assert.Equal(".#..#####.", tile.GetEdge(3));
+        }
+
+        [Fact]
+        public void TileRelativeFlipYAndRotate()
+        {
+            var lines = new List<string>()
+            {
+                "Tile 2311:",
+                "..##.#..#.",
+                "##..#.....",
+                "#...##..#.",
+                "####.#...#",
+                "##.##.###.",
+                "##...#.###",
+                ".#.#.#..##",
+                "..#....#..",
+                "###...#.#.",
+                "..###..###",
+                "          ",
+            };
+            var puzzleSolver = new Year2020Day20();
+            var tiles = puzzleSolver.ParseInput(lines);
+            Assert.Single(tiles);
+            var tile = tiles.First();
+
+            tile.Rotation++;
+            tile.FlipYRelative(true);
+            tile.Rotation--;
+            Assert.Equal(".#..#.##..", tile.GetEdge(0));
+            Assert.Equal("...#.##..#", tile.GetEdge(1));
+            Assert.Equal("###..###..", tile.GetEdge(2));
+            Assert.Equal(".#####..#.", tile.GetEdge(3));
+        }
+
+        [Fact]
+        public void RotateImage()
+        {
+            var puzzleSolver = new Year2020Day20();
+            var lines = new List<string>()
+            {
+                "Tile 2311:",
+                "..##.#..#.",
+                "##..#.....",
+                "#...##..#.",
+                "####.#...#",
+                "##.##.###.",
+                "##...#.###",
+                ".#.#.#..##",
+                "..#....#..",
+                "###...#.#.",
+                "..###..###",
+                "          ",
+            };
+
+            Assert.Equal(new List<string>()
+            {
+                "Tile 2311:",
+                "..##.#..#.",
+                "##..#.....",
+                "#...##..#.",
+                "####.#...#",
+                "##.##.###.",
+                "##...#.###",
+                ".#.#.#..##",
+                "..#....#..",
+                "###...#.#.",
+                "..###..###",
+                "          ",
+            },
+            puzzleSolver.Rotate(lines, 0));
+
+            Assert.Equal(new List<string>()
+            {
+                " .#..#####.T",
+                " .#.####.#.i",
+                " ###...#..#l",
+                " #..#.##..#e",
+                " #....#.##. ",
+                " ...##.##.#2",
+                " .#...#....3",
+                " #.#.##....1",
+                " ##.###.#.#1",
+                " #..##.#...:",
+            },
+            puzzleSolver.Rotate(lines, 1));
+
+            var rotate2 = puzzleSolver.Rotate(puzzleSolver.Rotate(lines, 1), 1);
+            Assert.Equal(rotate2, puzzleSolver.Rotate(lines, 2));
+
+            var rotate3 = puzzleSolver.Rotate(rotate2, 1);
+            Assert.Equal(rotate3, puzzleSolver.Rotate(lines, 3));
+
+        }
+
+            public static IEnumerable<object[]> TestData()
         {
             yield return new object[]
             {

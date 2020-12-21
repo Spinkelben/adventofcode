@@ -60,6 +60,42 @@ namespace AdventOfCodeCSharp.Year2020
             return string.Empty;
         }
 
+        internal List<string> Rotate(List<string> input, int rotation)
+        {
+            var result = new List<string>();
+            if (rotation == 0)
+            {
+                return input;
+            }
+            else if (rotation == 1)
+            {
+                for (int i = 0; i < input[0].Length; i++)
+                {
+                    result.Add(string.Join(string.Empty, input.Select(l => l[i]).Reverse()));
+                }
+            }
+            else if (rotation == 2)
+            {
+                for (int i = 1; i <= input.Count; i++)
+                {
+                    result.Add(string.Join(string.Empty, input[^i].Reverse()));
+                }
+            }
+            else if (rotation == 3)
+            {
+                for (int i = 1; i <= input[0].Length; i++)
+                {
+                    result.Add(string.Join(string.Empty, input.Select(l => l[^i])));
+                }
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("Can only rotate 0 - 3");
+            }
+
+            return result;
+        }
+
         private List<string> GetPattern(List<List<Tile>> puzzle)
         {
             var result = new List<string>();
@@ -112,23 +148,59 @@ namespace AdventOfCodeCSharp.Year2020
                     }
 
                     var nextLineMatches = GetMatchingTile(currentLine[0].Id, currentLine[0].GetEdge(2), remainingEdgesDict).ToList();
-
+                    ConnectPiece(
+                        currentLine[0], 
+                        2, 
+                        nextLineMatches[0].t, 
+                        (t) => GetMatchingTile(t.Id, t.GetEdge(1), edgeDict).Count() > 0);
                     currentLine = new List<Tile>();
                     currentTile = nextLineMatches[0].t;
-                    currentTile.FlipX = nextLineMatches[0].flipped;
-                    currentTile.Rotation += nextLineMatches[0].edgeNum;
                     
                     continue;
                 }
 
+                ConnectPiece(currentTile, 1, matches[0].t);
                 currentTile = matches[0].t;
-                var edgeNum = matches[0].edgeNum;
-                currentTile.FlipY = matches[0].flipped;
-                currentTile.Rotation += edgeNum - 3;
-
             }
 
             return result;
+        }
+
+        private void ConnectPiece(Tile target, int targetEdge, Tile newPiece, Func<Tile, bool> extraCheck = null)
+        {
+            var pattern = target.GetEdge(targetEdge);
+            var connectingEdge = (targetEdge + 2) % 4;
+
+            foreach (var (flipX, flipY) in new List<(bool, bool)>() 
+            { 
+                (false, false),
+                (true, false),
+                (false, true)
+            })
+            {
+                newPiece.FlipX = flipX;
+                newPiece.FlipY = flipY;
+                for (int rotation = 0; rotation < 4; rotation++)
+                {
+                    newPiece.Rotation = rotation;
+                    if (newPiece.GetEdge(connectingEdge) == pattern)
+                    {
+                        if (extraCheck is object)
+                        {
+                            if (extraCheck(newPiece))
+                            {
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            
+
         }
 
         private void RotateCorner(Tile startCorner, Dictionary<string, List<(Tile, int edgeNumber, bool flipped)>> edgeDict)
@@ -143,9 +215,16 @@ namespace AdventOfCodeCSharp.Year2020
                 matchRight = GetMatchingTile(startCorner.Id, startCorner.GetEdge(1), edgeDict).ToList();
                 matchDown = GetMatchingTile(startCorner.Id, startCorner.GetEdge(2), edgeDict).ToList();
             }
+            var rightPiece = matchRight[0].t;
+            var downPiece = matchDown[0].t;
+            ConnectPiece(startCorner, 1, rightPiece);
+            ConnectPiece(startCorner, 2, downPiece);
+            if (GetMatchingTile(rightPiece.Id, rightPiece.GetEdge(0), edgeDict).Count() > 0
+                || GetMatchingTile(downPiece.Id, downPiece.GetEdge(3), edgeDict).Count() > 0)
+            {
+                Console.WriteLine("OopsSie");
+            }
 
-            startCorner.FlipY = matchRight[0].flipped;
-            startCorner.FlipX = matchDown[0].flipped;
         }
 
         private IEnumerable<(Tile t, int edgeNum, bool flipped)> GetMatchingTile(int tileId, string edge, Dictionary<string, List<(Tile, int edgeNumber, bool flipped)>> edgeDict)
@@ -226,7 +305,19 @@ namespace AdventOfCodeCSharp.Year2020
             internal bool FlipY { get; set; }
 
             // 1 = one turn clockwise, 4 is a full 360 degrees
-            internal int Rotation { get => rotation; set => rotation = value % 4; }
+            internal int Rotation
+            {
+                get => rotation;
+                set {
+                    var clamped = value % 4;
+                    if (clamped < 0)
+                    {
+                        clamped += 4;
+                    }
+
+                    rotation = clamped; 
+                }
+            }
 
             internal List<char[]> Pattern { get; } = new List<char[]>();
 
@@ -251,7 +342,7 @@ namespace AdventOfCodeCSharp.Year2020
                 }
                 else if (Rotation == 1)
                 {
-                    return HandleFlipX(Pattern.Select(l => l[lineNum]).Reverse());
+                    return HandleFlipY(Pattern.Select(l => l[lineNum]).Reverse());
                 }
                 if (Rotation == 2)
                 {
@@ -259,7 +350,7 @@ namespace AdventOfCodeCSharp.Year2020
                 }
                 else if (Rotation == 3)
                 {
-                    return HandleFlipX(Pattern.Select(l => l[^(lineNum + 1)]));
+                    return HandleFlipY(Pattern.Select(l => l[^(lineNum + 1)]));
                 }
                 else
                 {
@@ -275,7 +366,7 @@ namespace AdventOfCodeCSharp.Year2020
                 }
                 else if (Rotation == 1)
                 {
-                    return HandleFlipY(Pattern[^(columnNum + 1)]);
+                    return HandleFlipX(Pattern[^(columnNum + 1)]);
                 }
                 if (Rotation == 2)
                 {
@@ -283,7 +374,7 @@ namespace AdventOfCodeCSharp.Year2020
                 }
                 else if (Rotation == 3)
                 {
-                    return HandleFlipY(Pattern[columnNum].Reverse());
+                    return HandleFlipX(Pattern[columnNum].Reverse());
                 }
                 else
                 {
@@ -339,6 +430,53 @@ namespace AdventOfCodeCSharp.Year2020
                 }
             }
 
+            internal void FlipXRelative(bool v)
+            {
+                if (rotation % 2 == 0)
+                {
+                    FlipX = v;
+                }
+                else
+                {
+                    FlipY = v;
+                }
+            }
+
+            internal void FlipYRelative(bool v)
+            {
+                if (rotation % 2 == 0)
+                {
+                    FlipY = v;
+                }
+                else
+                {
+                    FlipX = v;
+                }
+            }
+
+            internal bool GetFlipXRelative()
+            {
+                if (rotation % 2 == 0)
+                {
+                    return FlipX;
+                }
+                else
+                {
+                    return FlipY;
+                }
+            }
+
+            internal bool GetFlipYRelative()
+            {
+                if (rotation % 2 == 0)
+                {
+                    return FlipY;
+                }
+                else
+                {
+                    return FlipX;
+                }
+            }
         }
     }
 }
