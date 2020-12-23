@@ -45,6 +45,7 @@ Example: `dotnet run 2019 4`
 - Day 18: Operation Order
 - Day 19: Monster Messages
 - Day 20: Jurassic Jigsaw
+- Day 21: Allergen Assessment
 
 ### 2019
 
