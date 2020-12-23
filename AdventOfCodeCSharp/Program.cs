@@ -13,7 +13,7 @@ namespace AdventOfCodeCSharp
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Please provide year and data, e.g '2020 1'");
+                Console.WriteLine("Please provide year and date, e.g '2020 1'");
                 return;
             }
             

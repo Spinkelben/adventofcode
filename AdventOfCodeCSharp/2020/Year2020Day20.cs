@@ -58,8 +58,68 @@ namespace AdventOfCodeCSharp.Year2020
             var image = AssembleImage(grid);
             var patterns = GetAllVariations(pattern).ToList();
             var variations = GetAllVariations(image).ToList();
+            var snakeImage = SnakeHighlighter(variations);
 
-            return string.Empty;
+            return $"{snakeImage.Sum(l => l.Count(c => c == '#'))}";
+        }
+
+        internal List<string> SnakeHighlighter(IEnumerable<List<string>> images)
+        {
+            var snakeOffsets = new List<(int x, int y)>()
+            {
+                (0,1 ),
+                (1,2 ),
+                (4,2 ),
+                (5,1 ),
+                (6,1 ),
+                (7,2 ),
+                (10,2),
+                (11,1),
+                (12,1),
+                (13,2),
+                (16,2),
+                (17,1),
+                (18,0),
+                (18,1),
+                (19,1),
+            };
+            
+
+            foreach (var image in images)
+            {
+                var monstersFound = false;
+                var result = new List<char[]>();
+                result.Add(image[0].ToCharArray());
+                result.Add(image[1].ToCharArray());
+                for (int y = 0; y < image.Count - 2; y++)
+                {
+                    result.Add(image[y + 2].ToCharArray());
+                    for (int x = 0; x < image[0].Length - 19; x++)
+                    {
+                        var shiftedOffsets = snakeOffsets
+                            .Select(o => (x: o.x + x, y: o.y + y));
+                        if (shiftedOffsets.All(o => image[o.y][o.x] == '#'))
+                        {
+                            monstersFound = true;
+                            foreach (var coord in shiftedOffsets)
+                            {
+                                result[coord.y][coord.x] = 'O';
+                            }
+                        }
+                    }
+                }
+
+                if (monstersFound)
+                {
+                    return result
+                        .Select(l => 
+                            l.Aggregate(new StringBuilder(), (sb, c) => sb.Append(c))
+                            .ToString())
+                        .ToList();
+                }
+            }
+
+            return null;
         }
 
         internal List<string> Rotate(List<string> input, int rotation)
@@ -98,7 +158,7 @@ namespace AdventOfCodeCSharp.Year2020
             return result;
         }
 
-        private List<string> GetPattern(List<List<Tile>> puzzle)
+        internal List<string> GetPattern(List<List<Tile>> puzzle)
         {
             var result = new List<string>();
             foreach (var line in puzzle)
@@ -121,7 +181,7 @@ namespace AdventOfCodeCSharp.Year2020
             return result;
         }
 
-        private IEnumerable<List<string>> GetAllVariations(List<string> image)
+        internal IEnumerable<List<string>> GetAllVariations(List<string> image)
         {
             foreach (var (flipX, flipY) in new List<(bool, bool)>() 
             {
@@ -168,7 +228,7 @@ namespace AdventOfCodeCSharp.Year2020
             return result;
         }
 
-        private List<string> AssembleImage(List<List<Tile>> puzzle)
+        internal List<string> AssembleImage(List<List<Tile>> puzzle)
         {
             var result = new List<string>();
             foreach (var line in puzzle)
@@ -268,8 +328,6 @@ namespace AdventOfCodeCSharp.Year2020
                     }
                 }
             }
-            
-
         }
 
         private void RotateCorner(Tile startCorner, Dictionary<string, List<(Tile, int edgeNumber, bool flipped)>> edgeDict)
@@ -412,18 +470,38 @@ namespace AdventOfCodeCSharp.Year2020
             {
                 if (Rotation == 0)
                 {
+                    if (FlipY)
+                    {
+                        lineNum = Pattern.Count - lineNum - 1;
+                    }
+
                     return HandleFlipX(Pattern[lineNum]);
                 }
                 else if (Rotation == 1)
                 {
+                    if (FlipX)
+                    {
+                        lineNum = Pattern[0].Length - lineNum - 1;
+                    }
+
                     return HandleFlipY(Pattern.Select(l => l[lineNum]).Reverse());
                 }
                 if (Rotation == 2)
                 {
+                    if (FlipY)
+                    {
+                        lineNum = Pattern.Count - lineNum - 1;
+                    }
+
                     return HandleFlipX(Pattern[^(lineNum + 1)].Reverse());
                 }
                 else if (Rotation == 3)
                 {
+                    if (FlipX)
+                    {
+                        lineNum = Pattern[0].Length - lineNum - 1;
+                    }
+
                     return HandleFlipY(Pattern.Select(l => l[^(lineNum + 1)]));
                 }
                 else
@@ -436,18 +514,38 @@ namespace AdventOfCodeCSharp.Year2020
             {
                 if (Rotation == 0)
                 {
+                    if (FlipX)
+                    {
+                        columnNum = Pattern[0].Length - columnNum - 1;
+                    }
+
                     return HandleFlipY(Pattern.Select(l => l[columnNum]));
                 }
                 else if (Rotation == 1)
                 {
+                    if (FlipY)
+                    {
+                        columnNum = Pattern.Count - columnNum - 1; 
+                    }
+                
                     return HandleFlipX(Pattern[^(columnNum + 1)]);
                 }
                 if (Rotation == 2)
                 {
+                    if (FlipX)
+                    {
+                        columnNum = Pattern[0].Length - columnNum - 1;
+                    }
+
                     return HandleFlipY(Pattern.Select(l => l[^(columnNum + 1)]).Reverse());
                 }
                 else if (Rotation == 3)
                 {
+                    if (FlipY)
+                    {
+                        columnNum = Pattern.Count - columnNum - 1;
+                    }
+
                     return HandleFlipX(Pattern[columnNum].Reverse());
                 }
                 else

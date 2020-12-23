@@ -26,12 +26,13 @@ namespace AdventOfCodeCSharpTests
 
         [Theory]
         [MemberData(nameof(TestData2))]
-        public void TileTest(List<string> tilesStr, long numMatches)
+        public void TileBordersMatch(List<string> tilesStr, long numMatches)
         {
             var puzzleSolver = new Year2020Day20();
             var tiles = puzzleSolver.ParseInput(tilesStr).ToList();
             var edgeDict = puzzleSolver.GetEdgeDict(tiles);
             var grid = puzzleSolver.AssembleTiles(tiles, edgeDict);
+            var waringRemove = numMatches;
             for (int i = 0; i < grid.Count - 1; i++)
             {
                 for (int j = 0; j < grid[i].Count - 1; j++)
@@ -41,6 +42,67 @@ namespace AdventOfCodeCSharpTests
                 }
             }
         }
+
+        [Theory]
+        [MemberData(nameof(TestData2))]
+        public void AssembledPictureTest(List<string> tilesStr, long numMatches)
+        {
+            var puzzleSolver = new Year2020Day20();
+            var tiles = puzzleSolver.ParseInput(tilesStr).ToList();
+            var edgeDict = puzzleSolver.GetEdgeDict(tiles);
+            var grid = puzzleSolver.AssembleTiles(tiles, edgeDict);
+            var image = puzzleSolver.AssembleImage(grid);
+            var variations = puzzleSolver.GetAllVariations(image);
+            var waringRemove = numMatches;
+
+            var sampleImage = new List<string>()
+            {
+                ".#.#..#.##...#.##..#####",
+                "###....#.#....#..#......",
+                "##.##.###.#.#..######...",
+                "###.#####...#.#####.#..#",
+                "##.#....#.##.####...#.##",
+                "...########.#....#####.#",
+                "....#..#...##..#.#.###..",
+                ".####...#..#.....#......",
+                "#..#.##..#..###.#.##....",
+                "#.####..#.####.#.#.###..",
+                "###.#.#...#.######.#..##",
+                "#.####....##..########.#",
+                "##..##.#...#...#.#.#.#..",
+                "...#..#..#.#.##..###.###",
+                ".#.#....#.##.#...###.##.",
+                "###.#...#..#.##.######..",
+                ".#.#.###.##.##.#..#.##..",
+                ".####.###.#...###.#..#.#",
+                "..#.#..#..#.#.#.####.###",
+                "#..####...#.#.#.###.###.",
+                "#####..#####...###....##",
+                "#.##..#..#...#..####...#",
+                ".#.###..##..##..####.##.",
+                "...###...##...#...#..###",
+            };
+
+            Assert.Contains(variations, v => listCompare(v, sampleImage));
+
+            bool listCompare(List<string> a, List<string> b)
+            {
+                if (a.Count != b.Count)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < a.Count; i++)
+                {
+                    if (a[i].CompareTo(b[i]) != 0)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }   
 
         [Fact]
         public void TileRotations()
@@ -121,18 +183,65 @@ namespace AdventOfCodeCSharpTests
             tile.FlipX = true;
             Assert.Equal(".#..#.##..", tile.GetEdge(0));
             Assert.Equal("###..###..", tile.GetEdge(2));
-            Assert.Equal("...#.##..#", tile.GetEdge(1));
-            Assert.Equal(".#####..#.", tile.GetEdge(3));
+            Assert.Equal(".#####..#.", tile.GetEdge(1));
+            Assert.Equal("...#.##..#", tile.GetEdge(3));
             Assert.Equal(".....#..##", tile.GetPatternLine(1));
+            var patternXFlipped = new List<string>()
+            {
+                ".#..#.##.. ",
+                ".....#..## ",
+                ".#..##...# ",
+                "#...#.#### ",
+                ".###.##.## ",
+                "###.#...## ",
+                "##..#.#.#. ",
+                "..#....#.. ",
+                ".#.#...### ",
+                "###..###.. ",
+                "           ",
+            };
+            Assert.Equal(
+                patternXFlipped,
+                puzzleSolver.GetPattern(new List<List<Year2020Day20.Tile>>()
+                { 
+                    new List<Year2020Day20.Tile>()
+                    { 
+                        tile
+                    }
+                }));
 
             tile.FlipX = false;
             tile.FlipY = true;
 
-            Assert.Equal("..##.#..#.", tile.GetEdge(0));
-            Assert.Equal("..###..###", tile.GetEdge(2));
+            Assert.Equal("..###..###", tile.GetEdge(0));
+            Assert.Equal("..##.#..#.", tile.GetEdge(2));
             Assert.Equal("#..##.#...", tile.GetEdge(1));
             Assert.Equal(".#..#####.", tile.GetEdge(3));
-            Assert.Equal(".#.####.#.", tile.GetPatternColumn(1));
+            Assert.Equal("###...#..#", tile.GetPatternColumn(2));
+
+            var patternYFlipped = new List<string>()
+            {
+                "..###..### ",
+                "###...#.#. ",
+                "..#....#.. ",
+                ".#.#.#..## ",
+                "##...#.### ",
+                "##.##.###. ",
+                "####.#...# ",
+                "#...##..#. ",
+                "##..#..... ",
+                "..##.#..#. ",
+                "           ",
+            };
+            Assert.Equal(
+                patternYFlipped,
+                puzzleSolver.GetPattern(new List<List<Year2020Day20.Tile>>()
+                {
+                    new List<Year2020Day20.Tile>()
+                    {
+                        tile
+                    }
+                }));
         }
 
         [Fact]
@@ -165,9 +274,9 @@ namespace AdventOfCodeCSharpTests
             var rightEdge = tile.GetEdge(1);
             var bottomEdge = tile.GetEdge(2);
             var leftEdge = tile.GetEdge(3);
-            Assert.Equal(".#..#####.", topEdge);
+            Assert.Equal("#..##.#...", topEdge);
             Assert.Equal(".#..#.##..", rightEdge);
-            Assert.Equal("#..##.#...", bottomEdge);
+            Assert.Equal(".#..#####.", bottomEdge);
             Assert.Equal("###..###..", leftEdge);
 
             // Undo
@@ -209,9 +318,9 @@ namespace AdventOfCodeCSharpTests
             tile.Rotation++;
             tile.FlipXRelative(true);
             tile.Rotation--;
-            Assert.Equal("..##.#..#.", tile.GetEdge(0));
+            Assert.Equal("..###..###", tile.GetEdge(0));
             Assert.Equal("#..##.#...", tile.GetEdge(1));
-            Assert.Equal("..###..###", tile.GetEdge(2));
+            Assert.Equal("..##.#..#.", tile.GetEdge(2));
             Assert.Equal(".#..#####.", tile.GetEdge(3));
         }
 
@@ -242,9 +351,9 @@ namespace AdventOfCodeCSharpTests
             tile.FlipYRelative(true);
             tile.Rotation--;
             Assert.Equal(".#..#.##..", tile.GetEdge(0));
-            Assert.Equal("...#.##..#", tile.GetEdge(1));
+            Assert.Equal(".#####..#.", tile.GetEdge(1));
             Assert.Equal("###..###..", tile.GetEdge(2));
-            Assert.Equal(".#####..#.", tile.GetEdge(3));
+            Assert.Equal("...#.##..#", tile.GetEdge(3));
         }
 
         [Fact]
@@ -335,9 +444,9 @@ namespace AdventOfCodeCSharpTests
 
             tile.FlipXRelative(true);
             tile.Rotation = 3;
-            Assert.Equal("...#.##..#", tile.GetEdge(0));
+            Assert.Equal(".#####..#.", tile.GetEdge(0));
             Assert.Equal("..###..###", tile.GetEdge(1));
-            Assert.Equal(".#####..#.", tile.GetEdge(2));
+            Assert.Equal("...#.##..#", tile.GetEdge(2));
             Assert.Equal("..##.#..#.", tile.GetEdge(3));
 
         }

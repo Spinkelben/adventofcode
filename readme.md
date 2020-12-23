@@ -38,12 +38,13 @@ Example: `dotnet run 2019 4`
 - Day 11: Seating System
 - Day 12: Rain Risk
 - Day 13: Shuttle Search
-- Day 14: Docking Data 
+- Day 14: Docking Data
 - Day 15: Rambunctious Recitation
 - Day 16: Ticket Translation
 - Day 17: Conway Cubes
-- Day 18: Operation Order 
+- Day 18: Operation Order
 - Day 19: Monster Messages
+- Day 20: Jurassic Jigsaw
 
 ### 2019
 
