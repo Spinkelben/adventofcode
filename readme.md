@@ -47,6 +47,7 @@ Example: `dotnet run 2019 4`
 - Day 20: Jurassic Jigsaw
 - Day 21: Allergen Assessment
 - Day 22: Crab Combat
+- Day 23: Crab Cups
 
 ### 2019
 
