@@ -5,12 +5,36 @@ open FsUnit.Xunit
 
 let part1Values : obj array seq =
     seq {
-        yield [| Seq.empty<string>; "" |];
+        yield [| seq {
+            "199";
+            "200";
+            "208";
+            "210";
+            "200";
+            "207";
+            "240";
+            "269";
+            "260";
+            "263";
+        };
+        "7" |];
     }
 
 let part2Values : obj array seq =
     seq {
-        yield [| Seq.empty<string>; "" |];
+        yield [| seq {
+            "199";
+            "200";
+            "208";
+            "210";
+            "200";
+            "207";
+            "240";
+            "269";
+            "260";
+            "263";
+        };
+        "5" |];
     }
 
 [<Theory>]
