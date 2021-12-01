@@ -127,7 +127,9 @@ let main (input : string seq) =
     let keyCount = searchString (fun c -> c >= 'a' && c <= 'z') mazeString |> Seq.length
 
     let part1 =
-        solveMaze maze startPoint doors keyCount
+        let (result, list) = solveMaze maze startPoint doors keyCount
+        result
+        
 
     let part2 = 
         ""

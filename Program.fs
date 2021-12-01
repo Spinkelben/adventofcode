@@ -35,6 +35,9 @@ let private puzzleMap year day =
                 | "22" -> Some Year2019Day22.main
                 | "23" -> Some Year2019Day23.main
                 | _   -> None
+    | "2020" -> match day with
+                | "1" -> Some Year2021Day1.main
+                | _ -> None
     | _      -> None
 
 type Dummy() = class end
@@ -56,7 +59,7 @@ let main argv =
         else
             false
 
-    let inputLines = getPuzzleInput day year getAuthToken forceDownloadInput true
+    let inputLines = getPuzzleInput day year getAuthToken forceDownloadInput false
     
     let puzzleSolver = puzzleMap year day
 

@@ -88,5 +88,5 @@ let ``Part1 Test`` (input :seq<string>, expected) =
 [<Theory>]
 [<MemberData("part2Values")>]
 let ``Part2 Test`` (input :seq<string>, expected) =
-    let _, part2 = Year2019Day17.main input
+    let _, part2 = Year2019Day20.main input
     part2 |> should equal expected

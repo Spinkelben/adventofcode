@@ -48,9 +48,15 @@ let private getInputFromWeb day year token =
     }
 
 let private preProcessLines removeEmptyLines lines =
-    lines 
-    |> Seq.map (fun (s:string) -> s.Trim())
-    |> Seq.filter (fun s -> s.Length > 0 || not removeEmptyLines)
+    let a = lines 
+            |> Seq.map (fun (s:string) -> s.Trim())
+            |> Seq.filter (fun s -> s.Length > 0 || not removeEmptyLines)
+            |> Seq.toArray 
+    if Array.last a = "" then 
+        a |>
+        Array.take (Array.length a - 1)
+    else
+        a
 
 let getPuzzleInput day year token forceDownload removeEmptyLines =
     let fileInfo = getInputFileInfo day year token
