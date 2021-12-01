@@ -1,0 +1,37 @@
+b = 84
+c = b
+a = 1
+if (a != 0)
+{
+    b = b * 100
+    b = b + 100000
+    c = b
+    c = c + 17000
+}
+
+while (b - c != 0) // label 2
+{
+    f = 1
+    d = 2
+
+    do while ((d - b) != 0) // label 5
+    {
+        e = 2
+        do while ((e - b) != 0) // label 4
+        {
+            if ((d * e) - b == 0) // jmp label 3
+            {
+                f = 0
+            }
+            e = e + 1
+        }
+        d = d + 1
+    }
+
+    if (f == 0) // jmp label 6
+    {
+        h = h + 1
+    }
+
+    b = b + 17
+}
