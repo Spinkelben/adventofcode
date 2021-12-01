@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "AdventOfCode": {
+      "commandName": "Project",
+      "commandLineArgs": "",
+      "environmentVariables": {
+        "Key": "Value"
+      }
+    }
+  }
+}
