@@ -36,7 +36,7 @@ let private puzzleMap year day =
                 | "23" -> Some Year2019Day23.main
                 | _   -> None
     | "2021" -> match day with
-                | "1" -> Some Year2021Day1.main
+                | "1" -> Some Year2021.Day1.main
                 | _ -> None
     | _      -> None
 
