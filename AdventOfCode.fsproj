@@ -6,6 +6,7 @@
     <UserSecretsId>2a19541a-4799-4d5d-9fad-febbcd3502ed</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="2021\Year2021Day3.fs" />
     <Compile Include="2021\Year2021Day2.fs" />
     <Compile Include="2021\Year2021Day1.fs" />
     <Compile Include="Utility\ArrayHelpers.fs" />
