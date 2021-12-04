@@ -12,7 +12,7 @@ module Day2 =
             | [|"down"; value|]     -> Some (0, int value) 
             | _ -> None
 
-        let addPosition position1 position2 =
+        let addPosition (position1 :Movement) (position2 :Movement) =
             match position1, position2 with
             | (distance1, depth1), (distance2, depth2) -> distance1 + distance2, depth1 + depth2
 
