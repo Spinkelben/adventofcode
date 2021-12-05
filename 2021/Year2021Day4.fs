@@ -18,6 +18,7 @@ module Day4 =
                         |> Seq.map (Array.map (fun s -> splitString " " s)) // Convert the lines to array of numbers
                         |> Seq.map array2D // Make each board a 2darray from the jagged array
                         |> Seq.map (Array2D.map (fun s -> int s, false)) // map the string numbers to ints
+                        |> List.ofSeq
 
         
 
@@ -38,20 +39,28 @@ module Day4 =
         let rec playBingo boards numbers =
             match numbers with
             | next :: ns -> 
-                let marked = Seq.map (markNumber next) boards
-                let winners = Seq.choose (fun b -> if isBingo b then Some b else None) marked
-                if Seq.length winners > 0 then
-                    Some (Seq.head winners, next)
-                else 
-                    playBingo marked ns
+                let marked = List.map (markNumber next) boards
+                let winners, loosers = List.partition isBingo marked
+                match List.tryHead winners with
+                | Some winner -> Some (winner, next, ns, loosers)
+                | None -> playBingo marked ns
             | [] -> None
 
-        let winner, number = playBingo boards numbers |> Option.get
+        let winner, number, _, _ = playBingo boards numbers |> Option.get
         // Sum all non marked numbers of winning board
-        let boardSum = Seq.sumBy (fun (number, isMarked) -> if not isMarked then number else 0 ) (Seq.cast<int * bool> winner)
+        let sumBoard board = 
+            Seq.sumBy (fun (number, isMarked) -> if not isMarked then number else 0 ) board
 
-        let part1 = boardSum * number
+        let part1 = sumBoard (Seq.cast<int * bool> winner) * number
 
-        let part2 = ""
+        let rec playSurvivalBingo boards numbers =
+            let winner, number, numbers', boards' = playBingo boards numbers |> Option.get
+            if List.length boards' = 0 then
+                winner, number
+            else
+                playSurvivalBingo boards' numbers'
+
+        let lastWinner, number = playSurvivalBingo boards numbers
+        let part2 = sumBoard (Seq.cast<int * bool> lastWinner) * number
 
         string part1, string part2
