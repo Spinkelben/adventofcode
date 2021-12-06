@@ -23,12 +23,16 @@ Example: `dotnet run 2019 4`
 
 ## Days Completed
 
-### 2021
+### 2021 F#
 
 - Day 1: Sonar Sweep
 - Day 2: Dive!
+- Day 3: Binary Diagnostic
+- Day 4: Giant Squid
+- Day 5: Hydrothermal Venture
+- Day 6: Lanternfish
 
-### 2020
+### 2020 C#
 
 - Day 1: Report Repair
 - Day 2: Password Philosophy
@@ -56,7 +60,7 @@ Example: `dotnet run 2019 4`
 - Day 24: Lobby Layout
 - Day 25: Combo Breaker
 
-### 2019
+### 2019 F#
 
 - Day 1: The Tyranny of the Rocket Equation
 - Day 2: 1202 Program Alarm
@@ -79,7 +83,7 @@ Example: `dotnet run 2019 4`
 - Day 21: Springdroid Adventure
 - Day 23: Category Six
 
-### 2018
+### 2018 F#
 
 - Day 1: Chronal Calibration
 - Day 2: Inventory Management System
