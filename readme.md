@@ -31,6 +31,7 @@ Example: `dotnet run 2019 4`
 - Day 4: Giant Squid
 - Day 5: Hydrothermal Venture
 - Day 6: Lanternfish
+- Day 7: The Treachery of Whales
 
 ### 2020 C#
 
