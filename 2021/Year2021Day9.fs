@@ -37,15 +37,18 @@ module Day9 =
             
         let rec fillBasins unMapped id frontier basins =
             match frontier with
-            | c :: cs when Set.contains c unMapped ->  
+            | c :: cs when Set.contains c unMapped -> // Unseen coordinate 
                 let height = Map.find c floorHeights
-                if height = 9 then 
+                if height = 9 then // If 9, not part of basin
                     fillBasins (Set.remove c unMapped) id cs basins
                 else 
                     fillBasins (Set.remove c unMapped) id (List.concat [getSurroundingTiles c; cs]) ((c, id) :: basins)
-            | c:: cs -> fillBasins unMapped id cs basins
-            | [] when not (Set.isEmpty unMapped) -> fillBasins unMapped (id + 1) [Seq.head unMapped] basins
-            | [] -> basins
+            | c:: cs -> // We have already visited this coordinate, go to next part of frontier
+                fillBasins unMapped id cs basins
+            | [] when not (Set.isEmpty unMapped) -> // Frontier is empty, we mapped this basin, go to the next!
+                fillBasins unMapped (id + 1) [Seq.head unMapped] basins
+            | [] -> // No unmapped coord left, we are done!
+                basins
 
         let coords = floorHeights |> Seq.map (fun kvp -> kvp.Key) |> Set.ofSeq
         let basinSizeCount = fillBasins coords 0 [] []
