@@ -33,6 +33,7 @@ Example: `dotnet run 2019 4`
 - Day 6: Lanternfish
 - Day 7: The Treachery of Whales
 - Day 8: Seven Segment Search
+- Day 9: Smoke Basin
 
 ### 2020 C#
 

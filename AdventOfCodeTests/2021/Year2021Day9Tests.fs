@@ -19,9 +19,13 @@ module Day9Tests =
     let part2Values : obj array seq =
         seq {
             yield [| seq {
-                "";
-            };
-            "" |];
+                "2199943210";
+                "3987894921";
+                "9856789892";
+                "8767896789";
+                "9899965678";
+             };
+             "1134" |];
         }
 
     [<Theory>]
