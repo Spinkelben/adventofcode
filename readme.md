@@ -34,6 +34,7 @@ Example: `dotnet run 2019 4`
 - Day 7: The Treachery of Whales
 - Day 8: Seven Segment Search
 - Day 9: Smoke Basin
+- Day 10: Syntax Scoring
 
 ### 2020 C#
 
