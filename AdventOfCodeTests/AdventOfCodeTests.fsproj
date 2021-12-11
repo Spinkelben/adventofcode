@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="2021\Year2021Day11Tests.fs" />
     <Compile Include="2021\Year2021Day10Tests.fs" />
     <Compile Include="2021\Year2021Day9Tests.fs" />
     <Compile Include="2021\Year2021Day8Tests.fs" />
