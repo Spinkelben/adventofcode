@@ -2,6 +2,7 @@
 
 open System
 open System.Text.RegularExpressions;
+open Utils
 
 module Day13 =
     type Fold = 
@@ -44,6 +45,12 @@ module Day13 =
         let part1 = foldTransparent (List.head folds) dots
                     |> Set.count
 
-        let part2 = ""
         
-        string part1, string part2
+        let final = folds 
+                    |> List.fold (fun d f -> foldTransparent f d) dots
+                    |> List.ofSeq 
+                    |> List.map (fun x -> (x, '#'))
+                    |> Map.ofList
+        let picture = ArrayHelpers.printTileMap (ArrayHelpers.sparseToDense final '.') string
+                    
+        string part1, string picture

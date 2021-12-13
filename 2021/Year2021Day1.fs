@@ -1,6 +1,7 @@
 ﻿namespace Year2021
 
 module Day1 =
+
     let main (input :string seq) =
         let isIncreased (a, b) = a < b
 

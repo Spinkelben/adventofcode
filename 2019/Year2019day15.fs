@@ -1,5 +1,6 @@
 ﻿module Year2019Day15
 open System
+open Utils
 
 type Moves =
     | North

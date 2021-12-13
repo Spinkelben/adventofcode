@@ -56,8 +56,15 @@ module Day13Tests =
                 "";
                 "fold along y=7";
                 "fold along x=5";
-             };
-             "36" |];
+            };
+            "
+#####
+#...#
+#...#
+#...#
+#####
+"       
+            |];
         }
 
     [<Theory>]
@@ -71,4 +78,5 @@ module Day13Tests =
     let ``Part2 Test`` (input :seq<string>, expected) =
         let _, part2 = Year2021.Day13.main input
         part2 |> should equal expected
+
 
