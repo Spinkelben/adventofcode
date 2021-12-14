@@ -212,10 +212,10 @@ namespace AdventOfCodeCSharp.Year2020
                 Console.WriteLine($"Couldn't parse height value {value}");
                 return this.InputValidationEnabled ? (double?)null : -1.0;
             }
-            catch (FormatException e)
+            catch (FormatException)
             {
                 Console.WriteLine($"Couldn't parse value {value}");
-                throw e;
+                throw;
             }
         }
     }
