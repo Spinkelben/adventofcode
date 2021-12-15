@@ -30,31 +30,56 @@ module Day14 =
                 
         let template, map = parseInput input
 
-        let computePolymerScore elements =
+        let computePolymerScore (elements : ('a * int64) list) =
             (elements |> List.maxBy snd |> snd) - (elements |> List.minBy snd |> snd) 
 
         let elementCounts = polymerize map template 10
                             |> List.countBy id
+                            |> List.map (fun (x,y) -> x, int64 y)
 
         let part1 = computePolymerScore elementCounts
 
-        let rec expandPair pairCache pairMap (x,y) steps =
-            match Map.tryFind ((x, y), steps) pairCache with
-            | Some x -> x, pairCache
-            | None ->   if steps = 0 then 
-                            [x; y], pairCache 
-                        elif steps = 1 then
-                            let result = [x; Map.find (x,y) pairMap; y]
-                            result, Map.add ((x,y), steps) result pairCache
-                        else 
-                            let middle = Map.find (x,y) pairMap
-                            let subResult1, cache' = expandPair pairCache pairMap (x, middle) (steps - 1)
-                            let subResult2, cache'' = expandPair cache' pairMap (middle, y) (steps - 1)
-                            let result = List.concat [[x]; subResult1.[1..^1]; [middle]; subResult2.[1..^1]; [y] ]
-                            result, Map.add ((x,y), steps) result cache''
-                            
+        let updateCount toAdd existing = 
+            match existing with
+            | Some c -> c + toAdd |> Some
+            | None -> Some toAdd
 
+        let expandPairs map first pairCount =
+            let newPairs (x,y) = 
+                let pair1 = (x, Map.find (x,y) map)
+                let pair2 = (Map.find (x,y) map, y)
+                pair1, pair2
+            let pairCount' = pairCount |> Map.fold (fun newCounts (x, y) count-> 
+                let pair1, pair2 = newPairs (x,y)
+                newCounts |> Map.change pair1 (updateCount count)
+                |> Map.change pair2 (updateCount count)) Map.empty
+            let first', next = newPairs first
+            first', pairCount' |> Map.change next (updateCount 1L)
 
-        let part2 = ""
+        let polymerize2 map template steps =
+            let firstPair = List.pairwise template |> List.head
+            let pairCounts  = List.pairwise template 
+                                |> List.tail
+                                |> List.countBy id 
+                                |> List.map (fun (x, y) -> x, int64 y)
+                                |> Map.ofList
+            let rec polymerize2' firstPair pairCounts steps =
+                if steps <= 0 then
+                    firstPair, pairCounts
+                else
+                    let first', pairCounts' = expandPairs map firstPair pairCounts
+                    polymerize2' first' pairCounts' (steps - 1)
+
+            polymerize2' firstPair pairCounts steps
+
+        let sumSymbols (f1, f2) pairCounts = 
+            pairCounts 
+            |> Map.fold (fun acc (_, y) count -> acc |> Map.change y (updateCount count)) Map.empty
+            |> Map.change f1 (updateCount 1L) 
+            |> Map.change f2 (updateCount 1L)
+            |> Map.toList
+
+        let f,c = polymerize2 map template 40 
+        let part2 = sumSymbols f c |> computePolymerScore
                     
         string part1, string part2

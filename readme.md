@@ -35,6 +35,10 @@ Example: `dotnet run 2019 4`
 - Day 8: Seven Segment Search
 - Day 9: Smoke Basin
 - Day 10: Syntax Scoring
+- Day 11: Dumbo Octopus
+- Day 12: Passage Pathing
+- Day 13: Transparent Origami 
+- Day 14: Extended Polymerization
 
 ### 2020 C#
 

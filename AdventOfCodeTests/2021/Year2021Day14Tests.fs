@@ -30,6 +30,32 @@ module Day14Tests =
             |];
         }
 
+    let part2Values : obj array seq =
+        seq {
+            yield [| seq {
+               "NNCB";
+               "";
+               "CH -> B";
+               "HH -> N";
+               "CB -> H";
+               "NH -> C";
+               "HB -> C";
+               "HC -> B";
+               "HN -> C";
+               "NN -> C";
+               "BH -> H";
+               "NC -> B";
+               "NB -> B";
+               "BN -> B";
+               "BB -> N";
+               "BC -> B";
+               "CC -> N";
+               "CN -> C";
+            };
+            "2188189693529"
+            |];
+        }
+
     [<Theory>]
     [<MemberData("part1Values")>]
     let ``Part1 Test`` (input :seq<string>, expected) =
