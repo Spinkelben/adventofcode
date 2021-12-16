@@ -59,9 +59,20 @@ module Day15 =
 
         let map = parseInput input
         let size = Seq.length input
-        let score,path = shortestPath map (0,0) (size - 1, size - 1)
+        let score,_ = shortestPath map (0,0) (size - 1, size - 1)
         let part1 = score
      
-        let part2 = ""
+        let expandedGrid map = 
+            map |> Map.fold (fun state (x, y) risk -> 
+                seq { for i in [0..4] do 
+                        for j in [0..4] do 
+                            yield (i * size + x, j * size + y, i + j) }
+                |> Seq.fold (fun state' (x', y', increase) -> 
+                    Map.add (x', y') (((risk + increase - 1) % 9) + 1) state') state) Map.empty
+                    
+        let big = expandedGrid map
+        let size2 = size * 5
+        let score2, _ = shortestPath big (0,0) (size2 - 1, size2 - 1)
+        let part2 = score2
                     
         string part1, string part2
