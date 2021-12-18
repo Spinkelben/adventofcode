@@ -111,7 +111,40 @@ module Day16 =
              ) 0L
 
         let part1 = sumVersion
+
+        let rec getValue packet = 
+            match packet with 
+            | Literal (_ , v) -> v
+            | Operator ({ TypeId = 0L }, ps)  -> 
+                ps |> Seq.sumBy (getValue)
+            | Operator ({TypeId = 1L }, ps) -> 
+                ps |> Seq.fold (fun s p -> s * getValue p) 1L
+            | Operator ({TypeId = 2L }, ps) -> 
+                ps |> Seq.minBy (getValue) |> getValue
+            | Operator ({TypeId = 3L }, ps) -> 
+                ps |> Seq.maxBy (getValue) |> getValue
+            | Operator ({TypeId = 5L }, ps) -> 
+                let values = Seq.map getValue ps
+                if Seq.item 0 values > Seq.item 1 values then
+                    1L
+                else 
+                    0L
+            | Operator ({TypeId = 6L }, ps) -> 
+                let values = Seq.map getValue ps
+                if Seq.item 0 values < Seq.item 1 values then
+                    1L
+                else 
+                    0L
+            | Operator ({TypeId = 7L }, ps) -> 
+                let values = Seq.map getValue ps
+                if Seq.item 0 values = Seq.item 1 values then
+                    1L
+                else 
+                    0L
+            | _ -> failwith "Expression type fail"
+
+
      
-        let part2 = ""
+        let part2 = getValue (List.head packages)
                     
         string part1, string part2
