@@ -37,8 +37,8 @@ module Day15 =
             let rec shortestPath' openSet camefrom (gScore: Map<(int * int),int>) fScore =
                 if Set.count openSet = 0 then failwith "No path"
                 let current = openSet 
-                              |> Set.toSeq 
-                              |> Seq.minBy (fun e -> Map.find e fScore)
+                              |> Set.toList
+                              |> List.minBy (fun e -> Map.find e fScore)
                 if current = goal then
                     Map.find current gScore, computePath camefrom [] current
                 else
