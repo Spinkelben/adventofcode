@@ -16,44 +16,9 @@ module Day17Tests =
     let part2Values : obj array seq =
         seq {
             yield [| seq {
-                "C200B40A82";
+                "target area: x=20..30, y=-10..-5";
                  };
-                 "3"
-             |];
-             yield [| seq {
-                 "04005AC33890";
-                  };
-                  "54"
-             |];
-             yield [| seq {
-                 "880086C3E88112";
-                 };
-                 "7"
-             |];
-             yield [| seq {
-                 "CE00C43D881120";
-                  };
-                  "9"
-             |];
-             yield [| seq {
-                 "D8005AC2A8F0";
-                  };
-                  "1"
-             |];
-             yield [| seq {
-                 "F600BC2D8F";
-                  };
-                  "0"
-             |];
-             yield [| seq {
-                 "9C005AC2F8F0";
-                  };
-                  "0"
-             |];
-             yield [| seq {
-                 "9C0141080250320F1802104A08";
-                  };
-                  "1"
+                 "112"
              |];
         }
 

@@ -26,7 +26,7 @@ module Day17 =
             let isAbleToHitY t2 p =
                 p >= t2
 
-            isAbleToHitX (x1, x2) x dx && isAbleToHitY y2 y
+            isAbleToHitX (x1, x2) x dx && isAbleToHitY y1 y
 
         let finalX dx = 
             (dx * (dx + 1)) / 2
@@ -41,7 +41,7 @@ module Day17 =
             // Velocities greater than 1
             // Velocities less tahen y1, as they will shoot straight past
             // the target going down
-            [0 .. abs y1]
+            [y1 .. (abs y1)]
             
 
         let getCandidateVelocities xRange yRange =
@@ -75,13 +75,14 @@ module Day17 =
         let (x1,x2),(y1,y2) = getTarget (Seq.head input)
         let candidates = getCandidateVelocities (x1, x2) (y1, y2)
         let getTrajectory = calculateTrajectory ((x1, x2),(y1, y2)) (0,0)
-        let part1 = candidates 
-                    |> List.choose (fun c -> getTrajectory c) // All velocities that hit target
+        let trajectoriesThatHitTarget = candidates 
+                                        |> List.choose (fun c -> getTrajectory c) // All velocities that hit target
+        let part1 = trajectoriesThatHitTarget
                     |> List.maxBy (fun t -> t |> List.maxBy snd |> snd) // Find trajectory with highest point
                     |> List.maxBy snd // Find highest point in trajectory
                     |> snd // Take y value
 
 
-        let part2 = ""
+        let part2 = List.length trajectoriesThatHitTarget
                     
         string part1, string part2
