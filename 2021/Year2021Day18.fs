@@ -114,11 +114,19 @@ module Day18 =
         | SPair (l, r) -> 3 * (getMagnitude l) + 2 * (getMagnitude r)
 
     let main (input :string seq) =
-        let part1 = input
-                    |> Seq.map parseInput
+        let numbers = input 
+                      |> Seq.map parseInput
+        let part1 = numbers
                     |> Seq.reduce addNumbers
                     |> getMagnitude
 
-        let part2 = ""
+        let part2 = Seq.allPairs numbers numbers
+                    |> Seq.map (fun (x,y) ->  
+                        if x = y then
+                            Int32.MinValue
+                        else
+                            addNumbers x y
+                            |> getMagnitude)
+                    |> Seq.max
                     
         string part1, string part2
