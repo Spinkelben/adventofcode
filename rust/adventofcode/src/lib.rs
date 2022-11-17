@@ -1,8 +1,9 @@
 
 mod puzzle;
 use clap::Parser;
+use puzzle::solution::Solution;
 
-/// Solutions to Advent of Code puzzle in Rust
+/// Solutions to Advent of Code puzzle in Rust. Remember to set environement varialble AOC_SESSION_KEY
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct PuzzleArgs {
@@ -30,4 +31,11 @@ pub async fn get_input(year: i32, day: i32, reload: bool) -> String {
     }
 
     panic!("Failed to get puzzle input!");
+}
+
+pub fn find_sovler<'a>(year: i32, day: i32, input: &'a str) -> Option<Box<dyn Solution + 'a>> {
+    match (year, day) {
+        (2021, 1) => Some(Box::from(puzzle::solution::year2021_day01::Solver::new(input))),
+        _ => None,
+    }
 }

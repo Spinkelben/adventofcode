@@ -1,3 +1,3 @@
 
-mod solution;
+pub mod solution;
 pub(crate) mod puzzle_inputs;
