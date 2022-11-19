@@ -36,6 +36,7 @@ pub async fn get_input(year: i32, day: i32, reload: bool) -> String {
 pub fn find_sovler<'a>(year: i32, day: i32, input: &'a str) -> Option<Box<dyn Solution + 'a>> {
     match (year, day) {
         (2021, 1) => Some(Box::from(puzzle::solution::year2021_day01::Solver::new(input))),
+        (2016, 1) => Some(Box::from(puzzle::solution::year2016_day01::NoTimeForTaxicab::new(input))),
         _ => None,
     }
 }
