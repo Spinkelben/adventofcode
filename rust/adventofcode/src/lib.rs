@@ -42,6 +42,7 @@ pub fn find_sovler<'a>(year: i32, day: i32, input: &'a str) -> Option<Box<dyn So
         (2022, 1) => Some(Box::from(puzzle::solution::year2022_day01::CalorieCounter::new(input))),
         (2022, 2) => Some(Box::from(puzzle::solution::year2022_day02::RockPaperScissors::new(input))),
         (2022, 3) => Some(Box::from(puzzle::solution::year2022_day03::RucksackReorganization::new(input))),
+        (2022, 4) => Some(Box::from(puzzle::solution::year2022_day04::CampCleanup::new(input))),
         _ => None,
     }
 }
