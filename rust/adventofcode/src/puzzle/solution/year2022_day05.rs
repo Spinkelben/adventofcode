@@ -2,18 +2,50 @@ use regex::Regex;
 
 use super::Solution;
 
-pub struct SupplyStacks<'a> {
-    input: &'a str
+pub struct SupplyStacks {
+    stacks: Vec<Vec<char>>,
+    moves: Vec<Move>,
 }
-impl<'a> SupplyStacks<'a> {
-    pub(crate) fn new(input: &'a str) -> Self {
-        SupplyStacks { input }
+
+impl<'a> SupplyStacks {
+    pub(crate) fn new(input: &str) -> Self {
+        let (moves, stacks) = parse_input(input);
+        SupplyStacks { moves, stacks }
+    }
+
+    fn execute_moves(&self) -> Vec<Vec<char>> {
+        let mut result = self.stacks
+            .iter()
+            .map(|s| { s.to_owned() })
+            .collect::<Vec<Vec<char>>>();
+
+        for crane_move in &self.moves {
+            for _ in 0..crane_move.amount {
+                let source_stack = result.get_mut(crane_move.source_idx - 1).unwrap();
+                let cargo_crate = source_stack.pop().unwrap();
+                let destination_stack = result.get_mut(crane_move.dest_idx - 1).unwrap();
+                destination_stack.push(cargo_crate);
+            }
+        }
+
+        result
     }
 }
 
-impl Solution for SupplyStacks<'_> {
+impl Solution for SupplyStacks {
     fn solve_part1(&self) -> String {
-        "todo!()".to_string()
+        let result = self.execute_moves();
+        result
+            .iter()
+            .filter_map(|s| 
+                {
+                    if s.len() > 0 
+                    {
+                        return Some(s[s.len() - 1])
+                    }
+                    None
+                })
+            .collect::<String>()
     }
 
     fn solve_part2(&self) -> String {
@@ -24,8 +56,8 @@ impl Solution for SupplyStacks<'_> {
 #[derive(Debug, PartialEq, Eq)]
 struct Move {
     amount : i32,
-    source_idx: i32,
-    dest_idx: i32,
+    source_idx: usize,
+    dest_idx: usize,
 }
 
 fn parse_input(example: &str) -> (Vec<Move>, Vec<Vec<char>>) {
@@ -33,13 +65,17 @@ fn parse_input(example: &str) -> (Vec<Move>, Vec<Vec<char>>) {
         .split("\n")
         .collect::<Vec<&str>>();
 
-    let move_stack_divider_line = lines.partition_point(|l| { l.trim().len() == 0});
+    let move_stack_divider_line = lines.iter().position(|l| 
+        { 
+            l.trim().len() == 0
+        }).unwrap();
+
     let (stack, moves) = lines.split_at(move_stack_divider_line);
     (parse_moves(moves), parse_stacks(stack))
 }
 
 fn parse_stacks(stack: &[&str]) -> Vec<Vec<char>> {
-    let num_stacks = stack[stack.len() - 2]
+    let num_stacks = stack[stack.len() - 1]
         .trim()
         .split(" ")
         .filter_map(|s| { s.parse::<usize>().ok() })
@@ -51,7 +87,7 @@ fn parse_stacks(stack: &[&str]) -> Vec<Vec<char>> {
         result.push(Vec::new());
     };
 
-    for i in (0..(stack.len() - 2)).rev() {
+    for i in (0..(stack.len() - 1)).rev() {
         let layer = stack[i];
         for (idx, stack_in_layer) in layer.chars().collect::<Vec<char>>().chunks(4).enumerate() {
             match stack_in_layer {
@@ -74,8 +110,8 @@ fn parse_moves(moves: &[&str] ) -> Vec<Move> {
         .filter_map(|c| {
             match 
                 (c.get(1).and_then(|c| { c.as_str().parse::<i32>().ok() }), 
-                c.get(2).and_then(|c| { c.as_str().parse::<i32>().ok() }), 
-                c.get(3).and_then(|c| { c.as_str().parse::<i32>().ok() })) {
+                c.get(2).and_then(|c| { c.as_str().parse::<usize>().ok() }), 
+                c.get(3).and_then(|c| { c.as_str().parse::<usize>().ok() })) {
                 (Some(amount), Some(source_idx), Some(dest_idx)) 
                     => Some(Move { amount, source_idx, dest_idx}),
                 _ => None
@@ -90,8 +126,8 @@ mod tests {
 
     #[test]
     fn parse_test() {
-        let example = "
-    [D]    
+        let example = 
+"    [D]    
 [N] [C]    
 [Z] [M] [P]
 1   2   3 
@@ -99,7 +135,8 @@ mod tests {
 move 1 from 2 to 1
 move 3 from 1 to 3
 move 2 from 2 to 1
-move 1 from 1 to 2";
+move 1 from 1 to 2
+";
         let expected_moves = vec![
             Move { amount: 1, source_idx: 2, dest_idx: 1 },
             Move { amount: 3, source_idx: 1, dest_idx: 3 },
@@ -119,5 +156,24 @@ move 1 from 1 to 2";
         assert_eq!(3, stacks.len());
         assert_eq!(expected_stacks, stacks);
 
+    }
+
+    #[test]
+    fn part1_test() {
+        let example = 
+"    [D]    
+[N] [C]    
+[Z] [M] [P]
+1   2   3 
+
+move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2
+";
+
+        let expected = "CMZ";
+        let solver = SupplyStacks::new(example);
+        assert_eq!(expected, solver.solve_part1())
     }
 }
