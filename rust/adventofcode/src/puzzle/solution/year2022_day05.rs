@@ -30,12 +30,27 @@ impl<'a> SupplyStacks {
 
         result
     }
-}
 
-impl Solution for SupplyStacks {
-    fn solve_part1(&self) -> String {
-        let result = self.execute_moves();
+    fn execute_moves2(&self) -> Vec<Vec<char>> {
+        let mut result = self.stacks.to_owned();
+        for crane_move in &self.moves {
+            let mut crates = Vec::new();
+            for _ in 0 .. crane_move.amount {
+                let source_stack = result.get_mut(crane_move.source_idx - 1).unwrap();
+                crates.push(source_stack.pop().unwrap());
+            }
+            let dest_stack = result.get_mut(crane_move.dest_idx - 1).unwrap();
+            for _ in 0 .. crane_move.amount {
+                let value = crates.pop().unwrap();
+                dest_stack.push(value)
+            }
+        }
+
         result
+    }
+
+    fn get_top_stack_element(stacks: &Vec<Vec<char>>) -> String {
+        stacks
             .iter()
             .filter_map(|s| 
                 {
@@ -47,9 +62,17 @@ impl Solution for SupplyStacks {
                 })
             .collect::<String>()
     }
+}
+
+impl Solution for SupplyStacks {
+    fn solve_part1(&self) -> String {
+        let result = self.execute_moves();
+        SupplyStacks::get_top_stack_element(&result)
+    }
 
     fn solve_part2(&self) -> String {
-        "todo!()".to_string()
+        let result = self.execute_moves2();
+        SupplyStacks::get_top_stack_element(&result)
     }
 }
 
@@ -175,5 +198,24 @@ move 1 from 1 to 2
         let expected = "CMZ";
         let solver = SupplyStacks::new(example);
         assert_eq!(expected, solver.solve_part1())
+    }
+
+    #[test]
+    fn part2_test() {
+        let example = 
+"    [D]    
+[N] [C]    
+[Z] [M] [P]
+1   2   3 
+
+move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2
+";
+
+        let expected = "MCD";
+        let solver = SupplyStacks::new(example);
+        assert_eq!(expected, solver.solve_part2())
     }
 }
