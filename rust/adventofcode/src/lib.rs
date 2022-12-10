@@ -45,6 +45,7 @@ pub fn find_sovler<'a>(year: i32, day: i32, input: &'a str) -> Option<Box<dyn So
         (2022, 4) => Some(Box::from(puzzle::solution::year2022_day04::CampCleanup::new(input))),
         (2022, 5) => Some(Box::from(puzzle::solution::year2022_day05::SupplyStacks::new(input))),
         (2022, 6) => Some(Box::from(puzzle::solution::year2022_day06::TuningTrouble::new(input))),
+        (2022, 7) => Some(Box::from(puzzle::solution::year2022_day07::NoSpaceLeftOnDevice::new(input))),
         _ => None,
     }
 }
