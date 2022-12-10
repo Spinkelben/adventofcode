@@ -1,4 +1,6 @@
-use std::{rc::{Rc, Weak}, collections::{HashMap, hash_map::RandomState}, cell::RefCell};
+use std::{rc::{Rc, Weak}, collections::{HashMap, hash_map::RandomState}, cell::RefCell, borrow::Borrow};
+
+use futures::channel::mpsc::TryRecvError;
 
 use super::Solution;
 
@@ -84,26 +86,63 @@ fn new_subdir<'a>(parent: Rc<Tree<'a>>, name: &'a str) -> Rc<Tree<'a>> {
     Rc::clone(&new_dir)
 }
 
-fn parse_tree(commands: &str) -> Tree {
+fn new_file<'a>(folder: Rc<Tree<'a>>, name: &'a str, size: usize) {
+    let parent_dir = folder
+        .to_directory()
+        .expect("Files cannot have subdirs");
+    let mut dir_map = parent_dir.sub_dirs.borrow_mut();
+    let new_folder = Rc::new(Tree::File(name, size));
+    dir_map.insert(name, Rc::clone(&new_folder));
+}
+
+fn parse_tree(commands: &str) -> Rc<Tree> {
     let root = Directory { name: "/", sub_dirs: RefCell::new(HashMap::new()), parent: Weak::new() };
     let root = Rc::new(Tree::Directory(root));
-    let mut current = root.as_ref();
-    let mut line_iter = commands.split("\n").skip(1);
+    let mut current = Rc::clone(&root);
+    let mut line_iter = commands
+        .split("\n")
+        .skip(1)
+        .map(|l| {l.trim()})
+        .peekable();
 
     while let Some(cmd) = line_iter.next() {
         if cmd.starts_with("$ cd") {
+            // Change dir
             let dir_name = &cmd[5..];
-           
+            if dir_name == ".." {
+                current = current.to_directory().unwrap().parent.upgrade().unwrap()
+            }
+            else {
+                let temp = Rc::clone(&current);
+                let current_dir = temp.to_directory().unwrap();
+                let subdirs = current_dir.sub_dirs.borrow();
+                let new_dir = subdirs.get(&dir_name).unwrap();
+                current = Rc::clone(new_dir);
+            }
+        }
+        else if cmd.starts_with("$ ls") {
+            // list folder contents
+            // Consumes all lines until next command
+            while let Some(item) = line_iter.next_if(|c| { !c.starts_with("$") })
+            {   
+                if item.starts_with("dir ") {
+                    new_subdir(Rc::clone(&current), &item[4..]);
+                }
+                else {
+                    let splits :Vec<&str> = item.split(" ").collect();
+                    let name = splits[1];
+                    let size = splits[0].parse().unwrap();
+                    new_file( Rc::clone(&current), name, size)
+                }
+            }
         }
     }
 
-    Tree::File("dummy", 10)
+    root
 }
 
 #[cfg(test)]
 mod tests {
-    use std::borrow::BorrowMut;
-
     use super::*;
 
     static EXAMPLE: &str = "$ cd /
@@ -186,6 +225,6 @@ mod tests {
             .borrow_mut()
             .insert("d", Rc::clone(&d_dir));
 
-        assert_eq!(*expected, parse_tree(EXAMPLE));
+        assert_eq!(expected, parse_tree(EXAMPLE));
     }
 }
