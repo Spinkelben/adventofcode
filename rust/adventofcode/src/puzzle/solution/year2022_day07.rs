@@ -1,27 +1,89 @@
-use std::{rc::{Rc, Weak}, collections::{HashMap, hash_map::RandomState}, cell::RefCell, borrow::Borrow};
-
-use futures::channel::mpsc::TryRecvError;
+use std::{rc::{Rc, Weak}, collections::{HashMap, hash_map::RandomState}, cell::RefCell};
 
 use super::Solution;
 
-pub struct NoSpaceLeftOnDevice {
-    
+pub struct NoSpaceLeftOnDevice<'a> {
+    input: &'a str
 }
-impl NoSpaceLeftOnDevice {
-    pub fn new(input: &str) -> Self {
+impl<'a> NoSpaceLeftOnDevice<'a> {
+    pub fn new(input: &'a str) -> Self {
         NoSpaceLeftOnDevice {
-
+            input
         }
     }
 }
 
-impl Solution for NoSpaceLeftOnDevice {
+impl Solution for NoSpaceLeftOnDevice<'_> {
     fn solve_part1(&self) -> String {
-        todo!()
+        let tree = parse_tree(self.input);
+        fn walker(node: &Tree, acc: &Vec<&(usize, usize)>) -> (usize, usize) {
+            match node {
+                Tree::Directory(_) => {
+                    let (sum_total, sum_small) : (usize, usize) = acc
+                        .iter()
+                        .map(|t| { **t })
+                        .reduce(|l, r| {
+                            (l.0 + r.0, l.1 + r.1)
+                        }).unwrap();
+                    if sum_total <= 100000
+                    {
+                        (sum_total, sum_small + sum_total)
+                    }
+                    else {
+                        (sum_total, sum_small)
+                    }
+                },
+                Tree::File(_, size) => {
+                    (*size, 0) 
+                },
+            }
+        }
+        
+        let (_total_size, small_dirs_size) = walk_depth_first(tree, &walker, &(0,0));
+        small_dirs_size.to_string()
     }
 
     fn solve_part2(&self) -> String {
-        todo!()
+        let tree = parse_tree(self.input);
+
+        fn dir_size_visitor(node: &Tree, acc: &Vec<&usize>) -> usize {
+            match node {
+                Tree::Directory(_) => acc.iter().map(|x| {**x }).sum(),
+                Tree::File(_, size) => *acc.first().unwrap() + size,
+            }
+        }
+
+        let space_used = walk_depth_first(Rc::clone(&tree), &dir_size_visitor, &0);
+        let total_space = 70000000usize;
+        let free_space = total_space - space_used;
+        let size_required = 30000000usize;
+        let space_to_free = size_required - free_space;
+
+        let delete_candidate_visitor = |node :&Tree, acc: &Vec<&(usize, usize)>| {
+            match node {
+                Tree::Directory(_) => {
+                    let (sum_total, sum_smallest_candidate) : (usize, usize) = acc
+                        .iter()
+                        .map(|t| { **t })
+                        .reduce(|l, r| {
+                            (l.0 + r.0, usize::min(r.1, l.1))
+                        }).unwrap();
+                    if sum_total >= space_to_free && sum_total < sum_smallest_candidate
+                    {
+                        (sum_total, sum_total)
+                    }
+                    else {
+                        (sum_total, sum_smallest_candidate)
+                    }
+                },
+                Tree::File(_, size) => {
+                    (*size, acc.first().unwrap().1) 
+                },
+            }
+        };
+
+        let (_total_size, small_dirs_size) = walk_depth_first(tree, &delete_candidate_visitor, &(0,usize::MAX));
+        small_dirs_size.to_string()
     }
 }
 
@@ -71,6 +133,24 @@ impl PartialEq for Directory<'_> {
     }
 }
 
+fn walk_depth_first<F: Fn(&Tree, &Vec<&T>) -> T, T>(root: Rc<Tree>, walker: &F, acc: &T) -> T {
+    match root.as_ref() {
+        Tree::Directory(d) => {
+            let subdirs = d.sub_dirs.borrow();
+            let mut state = vec![];
+            
+            for dir in subdirs.values()
+            {
+                state.push(walk_depth_first(Rc::clone(dir), walker, acc));
+            }
+
+            let temp = state.iter().collect();
+
+            walker(&root, &temp)
+        },
+        f => walker(f, &vec![acc]),
+    }
+}
 
 fn new_subdir<'a>(parent: Rc<Tree<'a>>, name: &'a str) -> Rc<Tree<'a>> {
     let parent_dir = parent
@@ -128,7 +208,7 @@ fn parse_tree(commands: &str) -> Rc<Tree> {
                 if item.starts_with("dir ") {
                     new_subdir(Rc::clone(&current), &item[4..]);
                 }
-                else {
+                else if item.len() > 0 {
                     let splits :Vec<&str> = item.split(" ").collect();
                     let name = splits[1];
                     let size = splits[0].parse().unwrap();
@@ -226,5 +306,50 @@ mod tests {
             .insert("d", Rc::clone(&d_dir));
 
         assert_eq!(expected, parse_tree(EXAMPLE));
+    }
+
+    #[test]
+    fn dir_size_test() {
+        let tree = parse_tree(EXAMPLE);
+
+        
+        fn walker(node : &Tree, acc: &Vec<&usize>) -> usize {
+            let expected_sizes: HashMap<&str, usize> = HashMap::from([
+                ("a", 94853),
+                ("e", 584),
+                ("d", 24933642),
+                ("/", 48381165),
+            ]);
+            match node {
+                Tree::Directory(d) => { 
+                    let sum: usize = acc
+                        .iter()
+                        .map(|n| { *n })
+                        .sum();
+                    println!("directory {}, size {}", d.name, sum);
+                    assert_eq!(expected_sizes.get(d.name).unwrap(), &sum);
+                    sum
+                },
+                Tree::File(n, size) => {
+                    let sum = acc.first().unwrap();
+                    println!("file {} size: {}, acc {}", n, size, sum);
+                    *sum + size
+                },
+            }
+        }
+
+        walk_depth_first(tree, &walker, &0);
+    }
+
+    #[test]
+    fn part1_test() {
+        let solver = NoSpaceLeftOnDevice::new(EXAMPLE);
+        assert_eq!("95437", solver.solve_part1());
+    }
+
+    #[test]
+    fn part2_test() {
+        let solver = NoSpaceLeftOnDevice::new(EXAMPLE);
+        assert_eq!("24933642", solver.solve_part2());
     }
 }
