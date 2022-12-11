@@ -9,6 +9,7 @@ pub mod year2022_day04;
 pub mod year2022_day05;
 pub mod year2022_day06;
 pub mod year2022_day07;
+pub mod year2022_day08;
 
 
 pub trait Solution {

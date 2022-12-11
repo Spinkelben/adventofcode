@@ -101,7 +101,7 @@ impl<'a> Tree<'a> {
         }
     }
 
-    fn to_file(&self) -> Option<(&'a str, usize)> {
+    fn _to_file(&self) -> Option<(&'a str, usize)> {
         match self {
             Tree::Directory(_) => None,
             Tree::File(name, size) => Some((name, *size)),
