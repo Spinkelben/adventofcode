@@ -8,18 +8,16 @@ pub struct RopeBridge {
 
 struct RopeSolver<'a> {
     tail_positions: HashSet<(i32, i32)>,
-    head_pos: (i32, i32),
-    tail_pos: (i32, i32),
+    links: Vec<(i32, i32)>,
     moves: &'a Vec<Move>,
 }
 
 impl<'a> RopeSolver<'a> {
-    fn new(moves: &'a Vec<Move>) -> Self {
+    fn new(moves: &'a Vec<Move>, num_links: usize) -> Self {
         Self { 
             moves, 
             tail_positions: HashSet::from([(0,0)]),
-            head_pos: (0,0),
-            tail_pos: (0,0),
+            links: iter::repeat((0,0)).take(num_links).collect(),
         } 
     }
 
@@ -45,27 +43,40 @@ impl<'a> RopeSolver<'a> {
     }
 
     fn move_step(&mut self, direction: &Move) {
+        let mut new_tail = vec![];
         // Move head
-        match direction {
-            Move::Up(_) => self.head_pos.1 -= 1,
-            Move::Down(_) => self.head_pos.1 += 1,
-            Move::Left(_) => self.head_pos.0 -= 1,
-            Move::Right(_) => self.head_pos.0 += 1,
-        }
-
-        // Move tail if nessecary
-        let delta_x = self.head_pos.0 - self.tail_pos.0;
-        let delta_y = self.head_pos.1 - self.tail_pos.1;
-        let x_move = delta_x.signum();
-        let y_move = delta_y.signum();
-
-        if delta_y.abs() > 1 
-            || delta_x.abs() > 1 {
-            self.tail_pos.1 += y_move;
-            self.tail_pos.0 += x_move;
-        }
+        let head = self.links.first().unwrap();
+        new_tail.push(match direction {
+            Move::Up(_) => (head.0, head.1 - 1),
+            Move::Down(_) => (head.0, head.1 + 1),
+            Move::Left(_) => (head.0 - 1, head.1),
+            Move::Right(_) => (head.0 + 1, head.1)
+        });
         
-        self.tail_positions.insert(self.tail_pos);
+        for t in self.links.iter().skip(1) {
+            let head = new_tail.last().unwrap();
+            let new_pos = Self::move_link(head, t);
+            new_tail.push(new_pos);
+        } 
+
+        self.tail_positions.insert(*new_tail.last().unwrap());
+        self.links = new_tail;
+    }
+
+    fn move_link(head: &(i32, i32), tail: &(i32, i32)) -> (i32,i32) {
+          // Move tail if nessecary
+          let delta_x = head.0 - tail.0;
+          let delta_y = head.1 - tail.1;
+          let x_move = delta_x.signum();
+          let y_move = delta_y.signum();
+  
+          if delta_y.abs() > 1 
+              || delta_x.abs() > 1 {
+              (tail.0 + x_move, tail.1 + y_move)
+          }
+          else {
+              tail.clone()
+          }
     }
 
     fn num_moves(&self) -> usize {
@@ -104,13 +115,15 @@ impl RopeBridge {
 
 impl Solution for RopeBridge {
     fn solve_part1(&self) -> String {
-        let mut solver = RopeSolver::new(&self.moves);
+        let mut solver = RopeSolver::new(&self.moves, 2);
         solver.execute_moves();
         solver.num_moves().to_string()
     }
 
     fn solve_part2(&self) -> String {
-        "todo!()".to_string()
+        let mut solver = RopeSolver::new(&self.moves, 10);
+        solver.execute_moves();
+        solver.num_moves().to_string()
     }
 }
 
@@ -126,6 +139,16 @@ mod tests {
     D 1
     L 5
     R 2
+    ";
+
+    static EXAMPLE_BIG: &str = "R 5
+    U 8
+    L 8
+    D 3
+    R 17
+    D 10
+    L 25
+    U 20
     ";
 
     #[test]
@@ -148,79 +171,91 @@ mod tests {
     #[test]
     fn single_step_test() {
         let moves = vec![Move::Right(4)];
-        let mut solver = RopeSolver::new(&moves);
-        assert_eq!((0,0), solver.head_pos);
-        assert_eq!((0,0), solver.tail_pos);
+        let mut solver = RopeSolver::new(&moves, 2);
+        assert_eq!((0,0), *solver.links.first().unwrap());
+        assert_eq!((0,0), *solver.links.last().unwrap());
         solver.move_step(&Move::Right(4));
-        assert_eq!((1,0), solver.head_pos);
-        assert_eq!((0,0), solver.tail_pos);
+        assert_eq!((1,0), *solver.links.first().unwrap());
+        assert_eq!((0,0), *solver.links.last().unwrap());
     }
 
     #[test]
     fn move_right_test() {
         let moves = vec![];
-        let mut solver = RopeSolver::new(&moves);
-        solver.head_pos.0 = 1;
-        assert_eq!((1,0), solver.head_pos);
-        assert_eq!((0,0), solver.tail_pos);
+        let mut solver = RopeSolver::new(&moves, 2);
+        solver.links[0].0 = 1;
+        assert_eq!((1,0), *solver.links.first().unwrap());
+        assert_eq!((0,0), *solver.links.last().unwrap());
         solver.move_step(&Move::Right(5));
-        assert_eq!((2,0), solver.head_pos);
-        assert_eq!((1,0), solver.tail_pos);
+        assert_eq!((2,0), *solver.links.first().unwrap());
+        assert_eq!((1,0), *solver.links.last().unwrap());
     }
 
     #[test]
     fn move_left_test() {
         let moves = vec![];
-        let mut solver = RopeSolver::new(&moves);
-        solver.head_pos.0 = -1;
-        assert_eq!((-1,0), solver.head_pos);
-        assert_eq!((0,0), solver.tail_pos);
+        let mut solver = RopeSolver::new(&moves, 2);
+        solver.links[0].0 = -1;
+        assert_eq!((-1,0), *solver.links.first().unwrap());
+        assert_eq!((0,0), *solver.links.last().unwrap());
         solver.move_step(&Move::Left(5));
-        assert_eq!((-2,0), solver.head_pos);
-        assert_eq!((-1,0), solver.tail_pos);
+        assert_eq!((-2,0), *solver.links.first().unwrap());
+        assert_eq!((-1,0), *solver.links.last().unwrap());
     }
 
     #[test]
     fn move_up_test() {
         let moves = vec![];
-        let mut solver = RopeSolver::new(&moves);
-        solver.head_pos.1 = -1;
-        assert_eq!((0,-1), solver.head_pos);
-        assert_eq!((0,0), solver.tail_pos);
+        let mut solver = RopeSolver::new(&moves, 2);
+        solver.links[0].1 = -1;
+        assert_eq!((0,-1), *solver.links.first().unwrap());
+        assert_eq!((0,0), *solver.links.last().unwrap());
         solver.move_step(&Move::Up(5));
-        assert_eq!((0,-2), solver.head_pos);
-        assert_eq!((0,-1), solver.tail_pos);
+        assert_eq!((0,-2), *solver.links.first().unwrap());
+        assert_eq!((0,-1), *solver.links.last().unwrap());
     }
 
     #[test]
     fn move_down_test() {
         let moves = vec![];
-        let mut solver = RopeSolver::new(&moves);
-        solver.head_pos.1 = 1;
-        assert_eq!((0,1), solver.head_pos);
-        assert_eq!((0,0), solver.tail_pos);
+        let mut solver = RopeSolver::new(&moves, 2);
+        solver.links[0].1 = 1;
+        assert_eq!((0,1), *solver.links.first().unwrap());
+        assert_eq!((0,0), *solver.links.last().unwrap());
         solver.move_step(&Move::Down(5));
-        assert_eq!((0,2), solver.head_pos);
-        assert_eq!((0,1), solver.tail_pos);
+        assert_eq!((0,2), *solver.links.first().unwrap());
+        assert_eq!((0,1), *solver.links.last().unwrap());
     }
 
     #[test]
     fn move_up_diagonal_test() {
         let moves = vec![];
-        let mut solver = RopeSolver::new(&moves);
-        solver.head_pos.1 = -1;
-        solver.head_pos.0 = 1;
-        assert_eq!((1,-1), solver.head_pos);
-        assert_eq!((0,0), solver.tail_pos);
+        let mut solver = RopeSolver::new(&moves, 2);
+        solver.links[0].1 = -1;
+        solver.links[0].0 = 1;
+        assert_eq!((1,-1), *solver.links.first().unwrap());
+        assert_eq!((0,0), *solver.links.last().unwrap());
         solver.move_step(&Move::Up(5));
-        assert_eq!((1,-2), solver.head_pos);
-        assert_eq!((1,-1), solver.tail_pos);
+        assert_eq!((1,-2), *solver.links.first().unwrap());
+        assert_eq!((1,-1), *solver.links.last().unwrap());
     }
 
     #[test]
     fn part1_test() {
         let solver = RopeBridge::new(EXAMPLE);
         assert_eq!("13", solver.solve_part1())
+    }
+
+    #[test]
+    fn part2_test() {
+        let solver = RopeBridge::new(EXAMPLE);
+        assert_eq!("1", solver.solve_part2())
+    }
+
+    #[test]
+    fn part2_big_test() {
+        let solver = RopeBridge::new(EXAMPLE_BIG);
+        assert_eq!("36", solver.solve_part2())
     }
 
 }
