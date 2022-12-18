@@ -36,14 +36,62 @@ impl Solution for DistressSignal {
     }
 
     fn solve_part2(&self) -> String {
-        todo!()
+        let divider1 = PacketList::new(vec![PacketList::new(vec![Packet::new_int(2)])]);
+        let divider2 = PacketList::new(vec![PacketList::new(vec![Packet::new_int(6)])]);
+        let mut all_packets = vec![
+            Rc::clone(&divider1),
+            Rc::clone(&divider2),
+        ];
+        all_packets.extend(self.packets.iter().map(Rc::clone));
+        all_packets.sort();
+        let mut divider1_idx = 0;
+        let mut divider2_idx = 0;
+        for i in 0.. all_packets.len() {
+            if all_packets[i] == divider1 {
+                divider1_idx = i + 1;
+            }
+            if all_packets[i] == divider2 {
+                divider2_idx = i + 1;
+            }
+        }
+
+        format!("{}", divider1_idx * divider2_idx)
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 enum Packet {
     Integer(i32),
     List(PacketList),
+}
+
+impl Ord for Packet {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        fn to_refcell(p: &Packet) -> PacketRef {
+            match p {
+                Packet::Integer(i) => Packet::new_int(*i),
+                Packet::List(l) => PacketList::new(l.subpackets.iter().map(Rc::clone).collect()),
+            }
+        }
+
+        let left = to_refcell(self);
+        let right = to_refcell(other);
+        match is_packets_in_right_order(left, right) {
+            Some(n) => if n {
+                    std::cmp::Ordering::Less
+                }
+                else {
+                    std::cmp::Ordering::Greater
+                }
+            None => std::cmp::Ordering::Equal,
+        }
+    }
+}
+
+impl PartialOrd for Packet {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl Packet {
@@ -59,7 +107,7 @@ impl Packet {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 struct PacketList {
     subpackets: Vec<PacketRef>
 }
@@ -281,6 +329,12 @@ mod tests {
     fn part1_test() {
         let solver = DistressSignal::new(EXAMPLE);
         assert_eq!("13", solver.solve_part1());
+    }
+
+    #[test]
+    fn part2_test() {
+        let solver = DistressSignal::new(EXAMPLE);
+        assert_eq!("140", solver.solve_part2());
     }
 
     static EXAMPLE: &str = "[1,1,3,1,1]
