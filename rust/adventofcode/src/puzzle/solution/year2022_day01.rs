@@ -11,7 +11,7 @@ impl<'a> CalorieCounter<'a> {
 
 }
 
-impl<'a> Solution for CalorieCounter<'a> {
+impl Solution for CalorieCounter<'_> {
     fn solve_part1(&self) -> String {
         let elves = read_input(self.input);
         elves.iter()
@@ -39,17 +39,17 @@ fn read_input(input: &str) -> Vec<Vec<i32>> {
 
     let mut result: Vec<Vec<i32>> = Vec::new();
     let mut current_elf: Vec<i32> = Vec::new();
-    while let Some(line) = line_iter.next() {
+    for line in line_iter {
         if let Ok(number) = line.parse::<i32>() {
             current_elf.push(number);
         }
-        else if line.is_empty() && current_elf.len() > 0 {
+        else if line.is_empty() && !current_elf.is_empty() {
             result.push(current_elf);
             current_elf = Vec::new();
         }
     }
 
-    if current_elf.len() > 0 {
+    if !current_elf.is_empty() {
         result.push(current_elf);
     }
 

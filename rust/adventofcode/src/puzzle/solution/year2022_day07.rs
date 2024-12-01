@@ -208,7 +208,7 @@ fn parse_tree(commands: &str) -> Rc<Tree> {
                 if item.starts_with("dir ") {
                     new_subdir(Rc::clone(&current), &item[4..]);
                 }
-                else if item.len() > 0 {
+                else if !item.is_empty() {
                     let splits :Vec<&str> = item.split(" ").collect();
                     let name = splits[1];
                     let size = splits[0].parse().unwrap();

@@ -40,8 +40,8 @@ impl<'a> Rucksack {
 
     fn find_badge(&self, other: &Rucksack, and_another: &Rucksack) -> Option<char> {
         let badge = &(&(&self.left | &self.right) & &(&other.left | &other.right)) & &(&and_another.left | &and_another.right);
-        let char = badge.into_iter().nth(0);
-        char
+        
+        badge.into_iter().nth(0)
     }
 }
 
@@ -72,7 +72,7 @@ impl Solution for RucksackReorganization<'_> {
             .split("\n")
             .filter_map(|l| {
                 let trimmed = l.trim();
-                if trimmed.len() == 0 {
+                if trimmed.is_empty() {
                     return None;
                 }
                 Some(trimmed)

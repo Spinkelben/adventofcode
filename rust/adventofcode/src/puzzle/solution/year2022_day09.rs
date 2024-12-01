@@ -75,7 +75,7 @@ impl<'a> RopeSolver<'a> {
               (tail.0 + x_move, tail.1 + y_move)
           }
           else {
-              tail.clone()
+              *tail
           }
     }
 

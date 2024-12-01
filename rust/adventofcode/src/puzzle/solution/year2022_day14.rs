@@ -60,7 +60,7 @@ impl SandSimulation {
             for coord in line.windows(2) {
                 let dx = i32::signum(coord[1].0 - coord[0].0);
                 let dy = i32::signum(coord[1].1 - coord[0].1);
-                let mut current = coord[0].clone();
+                let mut current = coord[0];
                 while current != coord[1] {
                     tiles.insert(current, Material::Rock);
                     current = (current.0 + dx, current.1 + dy);
@@ -94,12 +94,7 @@ impl SandSimulation {
                 (Some(_), Some(_), None) => coord = (coord.0 + 1, coord.1 + 1),
                 (Some(_), Some(_), Some(_)) => {
                     self.tiles.insert(coord, Material::Sand);
-                    if coord == init {
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
+                    return coord == init
                 }
             }
         }

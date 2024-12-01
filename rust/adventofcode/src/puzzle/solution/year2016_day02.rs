@@ -45,7 +45,7 @@ fn parse_input(input: &str) -> impl Iterator<Item = impl Iterator<Item = Directi
     let result = input
         .split("\n")
         .filter_map(|l| {
-             if l.trim().len() > 0 {
+             if !l.trim().is_empty() {
                  Some(l.trim())
             } else {
                 None

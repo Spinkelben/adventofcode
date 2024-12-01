@@ -132,7 +132,7 @@ fn parse_input(input: &str) -> Vec<PacketRef> {
         .split("\n")
         .filter_map(|line| {
             let trimmed = line.trim();
-            if trimmed.len() > 0 {
+            if !trimmed.is_empty() {
                 Some(trimmed)
             }
             else {
@@ -145,21 +145,21 @@ fn parse_input(input: &str) -> Vec<PacketRef> {
             for c in line.chars() {
                 match c {
                     '[' => {
-                        if current.len() > 0 {
+                        if !current.is_empty() {
                             tokens.push(current);
                             current = String::new();
                         }
                         tokens.push("[".to_string());
                     }
                     ']' => {
-                        if current.len() > 0 {
+                        if !current.is_empty() {
                             tokens.push(current);
                             current = String::new();
                         }
                         tokens.push("]".to_string())
                     }
                     ',' => {
-                        if current.len() > 0 {
+                        if !current.is_empty() {
                             tokens.push(current);
                             current = String::new();
                         }
@@ -218,7 +218,7 @@ fn is_packets_in_right_order(left: PacketRef, right: PacketRef) -> Option<bool> 
     match (left_borrow, right_borrow) {
         (Packet::Integer(l), Packet::Integer(r)) => {
             if l < r {
-                return Some(true);
+                Some(true)
             }
             else if l > r {
                 return Some(false);
@@ -248,11 +248,11 @@ fn is_packets_in_right_order(left: PacketRef, right: PacketRef) -> Option<bool> 
         },
         (Packet::Integer(_), Packet::List(_)) => {
             let wrapped_in_list = PacketList::new(vec![Rc::clone(&left)]);
-            return is_packets_in_right_order(wrapped_in_list, Rc::clone(&right));
+            is_packets_in_right_order(wrapped_in_list, Rc::clone(&right))
         },
         (Packet::List(_), Packet::Integer(_)) => {
             let wrapped_in_list = PacketList::new(vec![Rc::clone(&right)]);
-            return is_packets_in_right_order(Rc::clone(&left), wrapped_in_list);
+            is_packets_in_right_order(Rc::clone(&left), wrapped_in_list)
         },
     }
 }

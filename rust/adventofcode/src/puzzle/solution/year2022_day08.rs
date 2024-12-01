@@ -13,7 +13,7 @@ impl TreetopTreeHouse {
                     .filter_map(|c|  { char::to_digit(c, 10) } )
                     .map(|i| { i as i8 })
                     .collect::<Vec<i8>>();
-                if tree_line.len() > 0 {
+                if !tree_line.is_empty() {
                     Some(tree_line)
                 }
                 else {
@@ -59,8 +59,8 @@ fn get_trees_around(trees: &Vec<Vec<i8>>, pos: (usize, usize))
         impl Iterator<Item = i8> + '_) {
     let map_coord_to_tree =  |(x, y)| {
             let row: &Vec<i8> = &trees[y];
-            let value = row[x];
-            value
+            
+            row[x]
         };
 
     (

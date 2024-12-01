@@ -74,7 +74,7 @@ impl Monkey<'_> {
 
     fn catch_items(&mut self)
     {
-        while let Some(a) = self.receiver.try_recv().ok() {
+        while let Ok(a) = self.receiver.try_recv() {
             self.items.push_back(a)
         }
     }
@@ -91,13 +91,13 @@ impl Monkey<'_> {
         self.num_items_handled += 1;
         let mut worry_level = (self.operation)(item);
         if worry_level_decrease {
-            worry_level = worry_level / 3;
+            worry_level /= 3;
         }
 
         // Stress limit is the LCM of all the test divisors. 
         // We don't need to know the actual stress level,
         // we just need to know if the stress level is dividable by certain numbers
-        worry_level = worry_level % self.stress_limit;
+        worry_level %= self.stress_limit;
 
         if worry_level % self.test_divisor == 0 {
             self.throw_item_to(monkeys, self.test_true_dest, worry_level)
@@ -126,7 +126,7 @@ fn parse_operation(op: &str) -> Option<Box<dyn Fn(i64) -> i64>> {
             (Some("*"), Some("old")) => Some(Box::new(|x: i64| { x * x } )),
             (Some("+"), Some("old")) => Some(Box::new(|x: i64| { x + x } )),
             (Some("*"), Some(s)) => {
-                if let Some(n) = s.parse::<i64>().ok() {
+                if let Ok(n) = s.parse::<i64>() {
                     Some(Box::new(move |x| { x * n })) 
                 }
                 else {
@@ -134,7 +134,7 @@ fn parse_operation(op: &str) -> Option<Box<dyn Fn(i64) -> i64>> {
                 }
             },
             (Some("+"), Some(s)) => {
-                if let Some(n) = s.parse::<i64>().ok() {
+                if let Ok(n) = s.parse::<i64>() {
                     Some(Box::new(move |x| { x + n })) 
                 }
                 else {
@@ -177,7 +177,7 @@ fn parse_monkeys(input: &str) -> Vec<RefCell<Monkey>> {
             rem = x % y;
         }
     
-        return a * b / y;
+        a * b / y
     }
 
     let mut result = Vec::new();

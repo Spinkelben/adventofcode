@@ -17,7 +17,7 @@ impl BeaconExclusionZone {
             .collect();
 
         let beacons = HashSet::from_iter(
-            sensors.iter().map(|b| { b.closest_beacon.clone() }));
+            sensors.iter().map(|b| { b.closest_beacon }));
         Self { sensors, beacons }
     }
 
@@ -31,9 +31,9 @@ impl BeaconExclusionZone {
         overlaps.sort_by(|a,b| { a.0.cmp(&b.0) });
 
         let mut iter = overlaps.iter();
-        let mut current = iter.next().unwrap().clone();
+        let mut current = *iter.next().unwrap();
         let mut result = vec![];
-        while let Some(next) = iter.next() {
+        for next in iter {
             if current.1 >= next.0 {
                 if next.1 > current.1 {
                     current.1 = next.1
@@ -138,14 +138,13 @@ impl FromStr for Sensor {
             .captures_iter(s);
 
         let digits : Vec<i32> = captures
-            .map(|c| {
+            .flat_map(|c| {
                 c.iter()
                     .filter_map(|s| {
                         s.and_then(|c| { c.as_str().parse::<i32>().ok() })
                     })
                     .collect::<Vec<i32>>()
                 })
-            .flatten()
             .collect();
 
         if digits.len() != 4 {

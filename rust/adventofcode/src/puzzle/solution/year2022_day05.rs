@@ -54,7 +54,7 @@ impl<'a> SupplyStacks {
             .iter()
             .filter_map(|s| 
                 {
-                    if s.len() > 0 
+                    if !s.is_empty() 
                     {
                         return Some(s[s.len() - 1])
                     }
@@ -90,7 +90,7 @@ fn parse_input(example: &str) -> (Vec<Move>, Vec<Vec<char>>) {
 
     let move_stack_divider_line = lines.iter().position(|l| 
         { 
-            l.trim().len() == 0
+            l.trim().is_empty()
         }).unwrap();
 
     let (stack, moves) = lines.split_at(move_stack_divider_line);
@@ -114,8 +114,8 @@ fn parse_stacks(stack: &[&str]) -> Vec<Vec<char>> {
         let layer = stack[i];
         for (idx, stack_in_layer) in layer.chars().collect::<Vec<char>>().chunks(4).enumerate() {
             match stack_in_layer {
-                ['[', c, ']', ' '] => result[idx].push(c.clone()),
-                ['[', c, ']'] => result[idx].push(c.clone()), // handle final stack
+                ['[', c, ']', ' '] => result[idx].push(*c),
+                ['[', c, ']'] => result[idx].push(*c), // handle final stack
                 _ => (),
             }
         }

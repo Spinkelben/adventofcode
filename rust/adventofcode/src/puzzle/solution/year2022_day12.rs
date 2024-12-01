@@ -8,8 +8,8 @@ pub struct HillClimbingAlgorithm {
     destination: (usize, usize),
 }
 
-impl<'a> HillClimbingAlgorithm {
-    pub fn new(input: &'a str) -> Self { 
+impl HillClimbingAlgorithm {
+    pub fn new(input: &str) -> Self { 
         let (map, start, end) = parse_input(input);
         Self { map, start, destination: end } }
 }
@@ -69,7 +69,7 @@ fn parse_input(example: &str) -> (Vec<Vec<char>>, (usize, usize), (usize, usize)
     let mut map: Vec<Vec<char>> = example.split("\n")
         .filter_map(|line| {
             let trimmed = line.trim();
-            if trimmed.len() > 0 {
+            if !trimmed.is_empty() {
                 Some(trimmed.chars().collect())
             }
             else {
