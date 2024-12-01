@@ -9,7 +9,7 @@ pub struct NoTimeForTaxicab<'a> {
 
 impl<'a> NoTimeForTaxicab<'a> {
     pub fn new(input: &'a str) -> NoTimeForTaxicab<'a> {
-        NoTimeForTaxicab { input: input }
+        NoTimeForTaxicab { input }
     }
 }
 
@@ -61,7 +61,7 @@ fn parse_instructions(instructions: &str) -> Vec<Move> {
     .split(", ")
     .map(|i|
     {
-        match i.chars().nth(0) {
+        match i.chars().next() {
             Some('R') => Move::Right(i[1..].trim().parse::<u32>().unwrap()),
             Some('L') => Move::Left(i[1..].trim().parse::<u32>().unwrap()),
             _ => panic!("Invalid instruction {i}"),
@@ -110,7 +110,7 @@ fn apply_instruction(position: &Position, r#move: Move) -> Position
 }
 
 fn new_position_from_direction_and_magnitude(direction: CardinalDirection, position: &Position, magnitude: u32) -> Position {
-    let mut new = Position { direction: direction, x: position.x, y: position.y };
+    let mut new = Position { direction, x: position.x, y: position.y };
     match direction {
         CardinalDirection::North => new.y += magnitude as i32,
         CardinalDirection::East => new.x += magnitude as i32,

@@ -62,7 +62,7 @@ impl<'a> Solver<'a> {
     }
 }
 
-impl<'a> Solution for Solver<'a> {
+impl Solution for Solver<'_> {
     fn solve_part1(&self) -> String {
         self.solve_part1_internal()
     }

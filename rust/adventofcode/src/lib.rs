@@ -20,8 +20,7 @@ pub struct PuzzleArgs {
 
 
 pub fn parse_args() -> PuzzleArgs {
-    let args = PuzzleArgs::parse();
-    args
+    PuzzleArgs::parse()
 }
 
 pub async fn get_input(year: i32, day: i32, reload: bool) -> String {

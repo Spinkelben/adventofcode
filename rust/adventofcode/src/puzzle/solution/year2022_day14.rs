@@ -69,7 +69,7 @@ impl SandSimulation {
             }
         }
 
-        let mut temp = Self { tiles: tiles, max_y: 0 };
+        let mut temp = Self { tiles, max_y: 0 };
         temp.update_max_y();
         temp
     }

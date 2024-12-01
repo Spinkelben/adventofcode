@@ -10,7 +10,7 @@ impl<'a> BathroomSecurity<'a> {
     }
 }
 
-impl<'a> Solution for BathroomSecurity<'a> {
+impl Solution for BathroomSecurity<'_> {
     fn solve_part1(&self) -> String {
         let mut result: Vec<i8> = Vec::new();
         let mut previous_digit: i8 = 5;
@@ -41,7 +41,7 @@ enum Direction {
     Up, Down, Left, Right
 }
 
-fn parse_input<'a>(input: &'a str) -> impl Iterator<Item = impl Iterator<Item = Direction> + 'a> + 'a {
+fn parse_input(input: &str) -> impl Iterator<Item = impl Iterator<Item = Direction> + '_> {
     let result = input
         .split("\n")
         .filter_map(|l| {
@@ -91,10 +91,10 @@ fn find_digit_commitee_keypad(start: char, moves: impl Iterator<Item = Direction
     for direction in moves {
         match (direction, digit) {
             // Invalid moves
-            (Direction::Up, d) if vec!['1', '2', '4', '5', '9'].contains(&d) => (),
-            (Direction::Down, d) if vec!['A', 'D', 'C', '5', '9'].contains(&d) => (),
-            (Direction::Left, d) if vec!['1', '2', '5', 'A', 'D'].contains(&d) => (),
-            (Direction::Right, d) if vec!['1', '4', '9', 'C', 'D'].contains(&d) => (),
+            (Direction::Up, d) if ['1', '2', '4', '5', '9'].contains(&d) => (),
+            (Direction::Down, d) if ['A', 'D', 'C', '5', '9'].contains(&d) => (),
+            (Direction::Left, d) if ['1', '2', '5', 'A', 'D'].contains(&d) => (),
+            (Direction::Right, d) if ['1', '4', '9', 'C', 'D'].contains(&d) => (),
             // Valid moves
             (Direction::Up, d) if d == '3' => digit = '1',
             (Direction::Up, d) if d == 'D' => digit = 'B',

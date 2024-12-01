@@ -40,10 +40,10 @@ impl Scan {
                 (v.name.clone(), v)
             })
             .collect();
-        Self { valves: valves, total_time }
+        Self { valves, total_time }
     }
 
-    fn closed_valves<'a>(&'a self, open_valves: &'a HashSet<&str>) -> impl Iterator<Item= &Valve> +'a {
+    fn closed_valves<'a>(&'a self, open_valves: &'a HashSet<&str>) -> impl Iterator<Item= &'a Valve> +'a {
         self.valves.iter()
             .filter(|(_,v)| { !open_valves.contains(v.name.as_str()) })
             .map(|(_, v)| { v })
@@ -121,7 +121,7 @@ struct SearchState<'a> {
     potential_release: i32,
 }
 
-impl<'a> Ord for SearchState<'a> {
+impl Ord for SearchState<'_> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         let self_score = self.score();
         let other_score = other.score();
@@ -129,7 +129,7 @@ impl<'a> Ord for SearchState<'a> {
     }
 }
 
-impl<'a> PartialOrd for SearchState<'a> {
+impl PartialOrd for SearchState<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
@@ -151,8 +151,8 @@ impl<'a> SearchState<'a> {
         let new_potential = Self::reduce_potential(self.time_step, potential_release, total_time);
 
         SearchState {
+            open_valves,
             current_pos : self.current_pos,
-            open_valves : open_valves,
             potential_release : new_potential,
             pressure_release : self.pressure_release + release,
             time_step : self.time_step + 1
@@ -171,15 +171,15 @@ impl<'a> SearchState<'a> {
         for t in &valve.tunnels {
             let open_valves = self.open_valves.clone();
             result.push(SearchState {
+                open_valves,
                 current_pos : t,
-                open_valves: open_valves,
                 potential_release : new_potential,
                 pressure_release : self.pressure_release,
                 time_step : self.time_step + 1
             })
         }
 
-        return result;
+        result
     }
 }
 
@@ -199,7 +199,7 @@ impl FromStr for Valve {
             return Ok(Valve { 
                 name: matches[1].to_string(), 
                 flow_rate: matches[2].parse().unwrap(), 
-                tunnels: tunnels })
+                tunnels })
         }
 
         Err(())
