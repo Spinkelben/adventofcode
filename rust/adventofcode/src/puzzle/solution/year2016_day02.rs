@@ -5,7 +5,7 @@ pub struct BathroomSecurity<'a> {
 }
 
 impl<'a> BathroomSecurity<'a> {
-    pub fn new(input: &'a str) -> BathroomSecurity {
+    pub fn new(input: &'a str) -> BathroomSecurity<'a> {
         BathroomSecurity { input }
     }
 }
@@ -46,14 +46,14 @@ fn parse_input<'a>(input: &'a str) -> impl Iterator<Item = impl Iterator<Item = 
         .split("\n")
         .filter_map(|l| {
              if l.trim().len() > 0 {
-                 Some(l.trim()) 
-            } else { 
+                 Some(l.trim())
+            } else {
                 None
             } })
         .map(|line| {
             line
                 .chars()
-                .map(|c| 
+                .map(|c|
                     { match c {
                     'U' => Direction::Up,
                     'D' => Direction::Down,
@@ -174,7 +174,7 @@ mod test {
     }
 
     #[test]
-    fn part_two_find_digit_test() 
+    fn part_two_find_digit_test()
     {
         let line: Vec<Direction> = vec![Direction::Up, Direction::Left, Direction::Left ];
         let expected = '5';

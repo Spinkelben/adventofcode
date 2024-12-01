@@ -8,7 +8,7 @@ pub struct NoTimeForTaxicab<'a> {
 }
 
 impl<'a> NoTimeForTaxicab<'a> {
-    pub fn new(input: &'a str) -> NoTimeForTaxicab {
+    pub fn new(input: &'a str) -> NoTimeForTaxicab<'a> {
         NoTimeForTaxicab { input: input }
     }
 }
@@ -59,7 +59,7 @@ impl Position {
 fn parse_instructions(instructions: &str) -> Vec<Move> {
     instructions
     .split(", ")
-    .map(|i| 
+    .map(|i|
     {
         match i.chars().nth(0) {
             Some('R') => Move::Right(i[1..].trim().parse::<u32>().unwrap()),
@@ -90,21 +90,21 @@ fn follow_path(path: Vec<Move>) -> Position {
 fn apply_instruction(position: &Position, r#move: Move) -> Position
 {
     match (position.direction, r#move) {
-        (CardinalDirection::North, Move::Left(n)) => 
+        (CardinalDirection::North, Move::Left(n)) =>
             new_position_from_direction_and_magnitude(CardinalDirection::West, position, n),
-        (CardinalDirection::North, Move::Right(n)) => 
+        (CardinalDirection::North, Move::Right(n)) =>
             new_position_from_direction_and_magnitude(CardinalDirection::East, position, n),
-        (CardinalDirection::East, Move::Right(n)) => 
+        (CardinalDirection::East, Move::Right(n)) =>
             new_position_from_direction_and_magnitude(CardinalDirection::South, position, n),
-        (CardinalDirection::East, Move::Left(n)) => 
+        (CardinalDirection::East, Move::Left(n)) =>
             new_position_from_direction_and_magnitude(CardinalDirection::North, position, n),
-        (CardinalDirection::South, Move::Right(n)) => 
+        (CardinalDirection::South, Move::Right(n)) =>
             new_position_from_direction_and_magnitude(CardinalDirection::West, position, n),
-        (CardinalDirection::South, Move::Left(n)) => 
+        (CardinalDirection::South, Move::Left(n)) =>
             new_position_from_direction_and_magnitude(CardinalDirection::East, position, n),
-        (CardinalDirection::West, Move::Right(n)) => 
+        (CardinalDirection::West, Move::Right(n)) =>
             new_position_from_direction_and_magnitude(CardinalDirection::North, position, n),
-        (CardinalDirection::West, Move::Left(n)) => 
+        (CardinalDirection::West, Move::Left(n)) =>
             new_position_from_direction_and_magnitude(CardinalDirection::South, position, n),
     }
 }
@@ -147,15 +147,15 @@ fn interpolate(prev: &Position, next: &Position) -> impl Iterator<Item=(i32, i32
             Box::new((end + 1 .. start + 1).rev()) as Box<dyn Iterator<Item = i32>>
         }
     }
-    
+
     match next.direction {
-        CardinalDirection::North | CardinalDirection::South => 
+        CardinalDirection::North | CardinalDirection::South =>
         {
             let xs = iter::repeat(next.x);
             let ys = get_range(prev.y, next.y);
             Box::new(xs.zip(ys))
         }
-        CardinalDirection::East | CardinalDirection::West => 
+        CardinalDirection::East | CardinalDirection::West =>
         {
             let xs = get_range(prev.x, next.x);
             let ys = iter::repeat(next.y);
@@ -164,7 +164,7 @@ fn interpolate(prev: &Position, next: &Position) -> impl Iterator<Item=(i32, i32
     }
 }
 
-#[cfg(test)] 
+#[cfg(test)]
 mod tests {
     use super::*;
     #[test]
@@ -189,10 +189,10 @@ mod tests {
             (vec![ Move::Right(5), Move::Left(5), Move::Right(5), Move::Right(3) ], 12),
 
         ];
-        
+
 
         // Act
-        for (path, length) in inputs 
+        for (path, length) in inputs
         {
             let result = calculate_distance_from_origin(path);
 
