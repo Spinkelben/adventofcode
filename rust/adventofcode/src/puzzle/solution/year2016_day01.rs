@@ -138,7 +138,7 @@ fn find_first_location_visited_twice(path: Vec<Move>) -> Option<(i32, i32)> {
     None
 }
 
-fn interpolate(prev: &Position, next: &Position) -> impl Iterator<Item=(i32, i32)> {
+fn interpolate(prev: &Position, next: &Position) -> impl Iterator<Item=(i32, i32)> + use<> {
     fn get_range(start :i32, end :i32) -> impl Iterator<Item = i32> {
         if start < end {
             Box::new(start .. end)
