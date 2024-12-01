@@ -2,10 +2,12 @@ use std::collections::{BinaryHeap, HashMap};
 
 use super::Solution;
 
+type Point = (usize, usize);
+
 pub struct HillClimbingAlgorithm {
     map: Vec<Vec<char>>,
-    start: (usize, usize),
-    destination: (usize, usize),
+    start: Point,
+    destination: Point,
 }
 
 impl HillClimbingAlgorithm {
@@ -47,7 +49,7 @@ impl PartialOrd for OpenSetPoint {
     // Only order by fscore because that is what matters for nodes in open set
     // Also order so smallest fscore comes first when placed in BinaryHeap
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        other.f_score.partial_cmp(&self.f_score)
+        Some(self.cmp(other))
     }
 }
 
@@ -65,7 +67,7 @@ impl PartialEq for OpenSetPoint {
     }
 }
 
-fn parse_input(example: &str) -> (Vec<Vec<char>>, (usize, usize), (usize, usize)) {
+fn parse_input(example: &str) -> (Vec<Vec<char>>, Point, Point) {
     let mut map: Vec<Vec<char>> = example.split("\n")
         .filter_map(|line| {
             let trimmed = line.trim();
@@ -85,15 +87,15 @@ fn parse_input(example: &str) -> (Vec<Vec<char>>, (usize, usize), (usize, usize)
     (map, start, end)
 }
 
-fn find_start_and_end(map: &Vec<Vec<char>>) -> (Option<(usize, usize)>, Option<(usize, usize)>) {
+fn find_start_and_end(map: &[Vec<char>]) -> (Option<Point>, Option<Point>) {
     let mut start = None;
     let mut end = None;
-    for y in 0..map.len() {
-        for x in 0.. map[y].len() {
-            if map[y][x] == 'S' {
+    for (y, rows) in map.iter().enumerate() {
+        for (x, element) in rows.iter().enumerate() {
+            if *element == 'S' {
                 start = Some((x, y))
             }
-            else if map[y][x] == 'E' {
+            else if *element == 'E' {
                 end = Some((x, y))
             }
         }
@@ -102,15 +104,15 @@ fn find_start_and_end(map: &Vec<Vec<char>>) -> (Option<(usize, usize)>, Option<(
     (start, end)
 }
 
-fn get_heuristic_score((x, y): &(usize, usize), (dx, dy): &(usize, usize)) -> usize {
+fn get_heuristic_score((x, y): &Point, (dx, dy): &Point) -> usize {
     dx.abs_diff(*x) + dy.abs_diff(*y)
 }
 
-fn get_neighbors((x,y): (usize, usize), map: &Vec<Vec<char>>) -> Vec<(usize, usize)> {
+fn get_neighbors((x,y): Point, map: &[Vec<char>]) -> Vec<Point> {
     let x_as_int: i32 = x as i32;
     let y_as_int: i32 = y as i32;
 
-    fn get_height_difference(source: (usize, usize), dest: (usize, usize), map: &Vec<Vec<char>>) -> i32 {
+    fn get_height_difference(source: Point, dest: Point, map: &[Vec<char>]) -> i32 {
         let dest_height = map[dest.1][dest.0] as i32;
         let source_height = map[source.1][source.0] as i32;
         dest_height - source_height
@@ -140,9 +142,9 @@ fn get_neighbors((x,y): (usize, usize), map: &Vec<Vec<char>>) -> Vec<(usize, usi
 }
 
 
-fn find_path_length_astar(map: &Vec<Vec<char>>, start :(usize, usize), end: (usize, usize)) -> Option<usize> {
+fn find_path_length_astar(map: &[Vec<char>], start :Point, end: Point) -> Option<usize> {
     let mut open_set : BinaryHeap<OpenSetPoint> = BinaryHeap::new();
-    let mut g_scores : HashMap<(usize, usize), usize> = HashMap::new();
+    let mut g_scores : HashMap<Point, usize> = HashMap::new();
     g_scores.insert(start, 0);
 
     open_set.push(OpenSetPoint { x: start.0, y: start.1, f_score: get_heuristic_score(&start, &end) });

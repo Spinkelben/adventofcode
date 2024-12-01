@@ -1,7 +1,7 @@
 use regex::Regex;
 
 use super::Solution;
-use std::{sync::mpsc, collections::VecDeque, cell::{RefCell}};
+use std::{sync::mpsc, collections::VecDeque, cell::RefCell};
 
 pub struct MonkeyInTheMiddle<'a> {
     input: &'a str
@@ -79,7 +79,7 @@ impl Monkey<'_> {
         }
     }
 
-    fn throw_item_to(&self, monkeys: &Vec<RefCell<Monkey>>, monkey_number: usize, item: i64) {
+    fn throw_item_to(&self, monkeys: &[RefCell<Monkey>], monkey_number: usize, item: i64) {
         assert!(monkey_number < monkeys.len());
 
         let dest_monkey = &monkeys[monkey_number].borrow_mut();

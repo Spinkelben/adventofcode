@@ -7,7 +7,7 @@ pub struct SupplyStacks {
     moves: Vec<Move>,
 }
 
-impl<'a> SupplyStacks {
+impl SupplyStacks {
     pub(crate) fn new(input: &str) -> Self {
         let (moves, stacks) = parse_input(input);
         SupplyStacks { moves, stacks }
@@ -49,7 +49,7 @@ impl<'a> SupplyStacks {
         result
     }
 
-    fn get_top_stack_element(stacks: &Vec<Vec<char>>) -> String {
+    fn get_top_stack_element(stacks: &[Vec<char>]) -> String {
         stacks
             .iter()
             .filter_map(|s| 

@@ -36,8 +36,8 @@ impl Solution for DistressSignal {
     }
 
     fn solve_part2(&self) -> String {
-        let divider1 = PacketList::new(vec![PacketList::new(vec![Packet::new_int(2)])]);
-        let divider2 = PacketList::new(vec![PacketList::new(vec![Packet::new_int(6)])]);
+        let divider1 = PacketList::from_vec(vec![PacketList::from_vec(vec![Packet::new_int(2)])]);
+        let divider2 = PacketList::from_vec(vec![PacketList::from_vec(vec![Packet::new_int(6)])]);
         let mut all_packets = vec![
             Rc::clone(&divider1),
             Rc::clone(&divider2),
@@ -46,11 +46,11 @@ impl Solution for DistressSignal {
         all_packets.sort();
         let mut divider1_idx = 0;
         let mut divider2_idx = 0;
-        for i in 0.. all_packets.len() {
-            if all_packets[i] == divider1 {
+        for (i, item) in all_packets.iter().enumerate() {
+            if *item == divider1 {
                 divider1_idx = i + 1;
             }
-            if all_packets[i] == divider2 {
+            if *item == divider2 {
                 divider2_idx = i + 1;
             }
         }
@@ -70,7 +70,7 @@ impl Ord for Packet {
         fn to_refcell(p: &Packet) -> PacketRef {
             match p {
                 Packet::Integer(i) => Packet::new_int(*i),
-                Packet::List(l) => PacketList::new(l.subpackets.iter().map(Rc::clone).collect()),
+                Packet::List(l) => PacketList::from_vec(l.subpackets.iter().map(Rc::clone).collect()),
             }
         }
 
@@ -99,7 +99,7 @@ impl Packet {
         Rc::new(RefCell::new(Packet::Integer(int)))
     }
 
-    fn to_list(&mut self) -> Option<&mut PacketList> {
+    fn as_list(&mut self) -> Option<&mut PacketList> {
         match self {
             Packet::Integer(_) => None,
             Packet::List(p) => Some(p),
@@ -120,7 +120,7 @@ impl PacketList {
         )
     }
 
-    fn new(list: Vec<PacketRef> ) -> PacketRef {
+    fn from_vec(list: Vec<PacketRef> ) -> PacketRef {
         Rc::new(RefCell::new(Packet::List(Self { subpackets: list })))
     }
 }
@@ -172,15 +172,15 @@ fn parse_input(input: &str) -> Vec<PacketRef> {
 
     let packet_list = tokenized_lines.
         map(|line| {
-            let packet = PacketList::new(vec![]);
+            let packet = PacketList::from_vec(vec![]);
             let mut packet_stack = vec![packet];
             for t in line {
                 match t.as_str() {
                     "[" => {
-                        let new = PacketList::new(vec![]);
+                        let new = PacketList::from_vec(vec![]);
                         let current = Rc::clone(packet_stack.last().unwrap());
                         let mut temp = current.borrow_mut();
-                        let list = temp.to_list().unwrap();
+                        let list = temp.as_list().unwrap();
                         list.add_new_subpacket(&new);
                         packet_stack.push(Rc::clone(&new));
 
@@ -192,7 +192,7 @@ fn parse_input(input: &str) -> Vec<PacketRef> {
                         let num :PacketRef = Packet::new_int(m.parse().unwrap());
                         let current = Rc::clone(packet_stack.last().unwrap());
                         let mut temp = current.borrow_mut();
-                        let list = temp.to_list().unwrap();
+                        let list = temp.as_list().unwrap();
                         list.add_new_subpacket(&num);
                     }
                 }
@@ -203,7 +203,7 @@ fn parse_input(input: &str) -> Vec<PacketRef> {
             // Whole packet is wrapped in a root packet, to avoid special handling of the root node
             // We now need to unwrap it
             let mut top = packet_stack.first().unwrap().borrow_mut();
-            let temp = top.to_list().unwrap();
+            let temp = top.as_list().unwrap();
             assert_eq!(1, temp.subpackets.len());
             Rc::clone(&temp.subpackets[0])
         })
@@ -243,11 +243,11 @@ fn is_packets_in_right_order(left: PacketRef, right: PacketRef) -> Option<bool> 
             }
         },
         (Packet::Integer(_), Packet::List(_)) => {
-            let wrapped_in_list = PacketList::new(vec![Rc::clone(&left)]);
+            let wrapped_in_list = PacketList::from_vec(vec![Rc::clone(&left)]);
             is_packets_in_right_order(wrapped_in_list, Rc::clone(&right))
         },
         (Packet::List(_), Packet::Integer(_)) => {
-            let wrapped_in_list = PacketList::new(vec![Rc::clone(&right)]);
+            let wrapped_in_list = PacketList::from_vec(vec![Rc::clone(&right)]);
             is_packets_in_right_order(Rc::clone(&left), wrapped_in_list)
         },
     }
@@ -361,60 +361,60 @@ mod tests {
     #[test]
     fn parse_test() {
         let expected = vec![
-            PacketList::new(vec![Packet::new_int(1), Packet::new_int(1), Packet::new_int(3), Packet::new_int(1), Packet::new_int(1)]),
-            PacketList::new(vec![Packet::new_int(1), Packet::new_int(1), Packet::new_int(5), Packet::new_int(1), Packet::new_int(1)]),
-            PacketList::new(vec![
-                PacketList::new(vec![
+            PacketList::from_vec(vec![Packet::new_int(1), Packet::new_int(1), Packet::new_int(3), Packet::new_int(1), Packet::new_int(1)]),
+            PacketList::from_vec(vec![Packet::new_int(1), Packet::new_int(1), Packet::new_int(5), Packet::new_int(1), Packet::new_int(1)]),
+            PacketList::from_vec(vec![
+                PacketList::from_vec(vec![
                     Packet::new_int(1)]), 
-                PacketList::new(vec![
+                PacketList::from_vec(vec![
                     Packet::new_int(2), Packet::new_int(3), Packet::new_int(4) ])]),
-            PacketList::new(vec![
-                PacketList::new(vec![Packet::new_int(1)]), 
+            PacketList::from_vec(vec![
+                PacketList::from_vec(vec![Packet::new_int(1)]), 
                 Packet::new_int(4) ]),
-            PacketList::new(vec![Packet::new_int(9)]),
-            PacketList::new(vec![
-                PacketList::new( vec![Packet::new_int(8), Packet::new_int(7), Packet::new_int(6)])
+            PacketList::from_vec(vec![Packet::new_int(9)]),
+            PacketList::from_vec(vec![
+                PacketList::from_vec( vec![Packet::new_int(8), Packet::new_int(7), Packet::new_int(6)])
             ]),
-            PacketList::new(vec![
-                PacketList::new(vec![
+            PacketList::from_vec(vec![
+                PacketList::from_vec(vec![
                     Packet::new_int(4), Packet::new_int(4) 
                 ]),
                 Packet::new_int(4),
                 Packet::new_int(4),
             ]),
-            PacketList::new(vec![
-                PacketList::new(vec![
+            PacketList::from_vec(vec![
+                PacketList::from_vec(vec![
                     Packet::new_int(4), Packet::new_int(4) 
                 ]),
                 Packet::new_int(4),
                 Packet::new_int(4),
                 Packet::new_int(4),
             ]),
-            PacketList::new(vec![
+            PacketList::from_vec(vec![
                 Packet::new_int(7), Packet::new_int(7), Packet::new_int(7), Packet::new_int(7),
             ]),
-            PacketList::new(vec![
+            PacketList::from_vec(vec![
                 Packet::new_int(7), Packet::new_int(7), Packet::new_int(7),
             ]),
-            PacketList::new(vec![]),
-            PacketList::new(vec![Packet::new_int(3)]),
-            PacketList::new(vec![PacketList::
-                new(vec![
-                    PacketList::new(vec![]),
+            PacketList::from_vec(vec![]),
+            PacketList::from_vec(vec![Packet::new_int(3)]),
+            PacketList::from_vec(vec![PacketList::
+                from_vec(vec![
+                    PacketList::from_vec(vec![]),
                 ]),
             ]),
-            PacketList::new(vec![
-                PacketList::new(vec![]),
+            PacketList::from_vec(vec![
+                PacketList::from_vec(vec![]),
             ]),
-            PacketList::new(vec![
+            PacketList::from_vec(vec![
                 Packet::new_int(1),
-                PacketList::new(vec![
+                PacketList::from_vec(vec![
                     Packet::new_int(2),
-                    PacketList::new(vec![
+                    PacketList::from_vec(vec![
                         Packet::new_int(3),
-                        PacketList::new(vec![
+                        PacketList::from_vec(vec![
                             Packet::new_int(4),
-                            PacketList::new(vec![
+                            PacketList::from_vec(vec![
                                 Packet::new_int(5), Packet::new_int(6), Packet::new_int(7),
                             ]),
                         ]),
@@ -422,15 +422,15 @@ mod tests {
                 ]),
                 Packet::new_int(8), Packet::new_int(9),
             ]),
-            PacketList::new(vec![
+            PacketList::from_vec(vec![
                 Packet::new_int(1),
-                PacketList::new(vec![
+                PacketList::from_vec(vec![
                     Packet::new_int(2),
-                    PacketList::new(vec![
+                    PacketList::from_vec(vec![
                         Packet::new_int(3),
-                        PacketList::new(vec![
+                        PacketList::from_vec(vec![
                             Packet::new_int(4),
-                            PacketList::new(vec![
+                            PacketList::from_vec(vec![
                                 Packet::new_int(5), Packet::new_int(6), Packet::new_int(0),
                             ]),
                         ]),

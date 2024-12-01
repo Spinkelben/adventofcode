@@ -52,7 +52,7 @@ impl Solution for TreetopTreeHouse {
     }
 }
 
-fn get_trees_around(trees: &Vec<Vec<i8>>, pos: (usize, usize)) 
+fn get_trees_around(trees: &[Vec<i8>], pos: (usize, usize)) 
     -> (impl Iterator<Item = i8> + '_,
         impl Iterator<Item = i8> + '_,
         impl Iterator<Item = i8> + '_,
@@ -79,7 +79,7 @@ fn get_trees_around(trees: &Vec<Vec<i8>>, pos: (usize, usize))
     )
 }
 
-fn is_tree_visible(trees: &Vec<Vec<i8>>, pos: (usize, usize)) -> bool {
+fn is_tree_visible(trees: &[Vec<i8>], pos: (usize, usize)) -> bool {
     let (north, west, south, east) = get_trees_around(trees, pos);
     let largest_tree_north = north
         .max()
@@ -102,7 +102,7 @@ fn is_tree_visible(trees: &Vec<Vec<i8>>, pos: (usize, usize)) -> bool {
     height > largest_tree_west
 }
 
-fn calculate_scenic_score(trees: &Vec<Vec<i8>>, (x, y): (usize, usize)) -> usize {
+fn calculate_scenic_score(trees: &[Vec<i8>], (x, y): (usize, usize)) -> usize {
     let (north, 
         west, 
         south, 

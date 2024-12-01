@@ -205,8 +205,8 @@ fn parse_tree(commands: &str) -> Rc<Tree> {
             // Consumes all lines until next command
             while let Some(item) = line_iter.next_if(|c| { !c.starts_with("$") })
             {   
-                if item.starts_with("dir ") {
-                    new_subdir(Rc::clone(&current), &item[4..]);
+                if let Some(path) = item.strip_prefix("dir ") {
+                    new_subdir(Rc::clone(&current), path);
                 }
                 else if !item.is_empty() {
                     let splits :Vec<&str> = item.split(" ").collect();

@@ -96,16 +96,16 @@ fn find_digit_commitee_keypad(start: char, moves: impl Iterator<Item = Direction
             (Direction::Left, d) if ['1', '2', '5', 'A', 'D'].contains(&d) => (),
             (Direction::Right, d) if ['1', '4', '9', 'C', 'D'].contains(&d) => (),
             // Valid moves
-            (Direction::Up, d) if d == '3' => digit = '1',
-            (Direction::Up, d) if d == 'D' => digit = 'B',
+            (Direction::Up, '3') => digit = '1',
+            (Direction::Up, 'D') => digit = 'B',
             (Direction::Up, d) => {
                 let as_hex = d.to_digit(16).unwrap();
                 digit = char::from_digit(as_hex - 4, 16)
                     .unwrap()
                     .to_ascii_uppercase()
             }
-            (Direction::Down, d) if d == '1' => digit = '3',
-            (Direction::Down, d) if d == 'B' => digit = 'D',
+            (Direction::Down, '1') => digit = '3',
+            (Direction::Down, 'B') => digit = 'D',
             (Direction::Down, d) => {
                 let as_hex = d.to_digit(16).unwrap();
                 digit = char::from_digit(as_hex + 4, 16)
