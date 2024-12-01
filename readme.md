@@ -8,6 +8,10 @@ Open solution file in Visual Studio and build
 
 ## How to Run
 
+There are solutions done in .net C# and F#, and in recent years I have started to use Rust.
+
+### How to run .NET
+
 Add a local secret with your session token to fetch puzzle input.
 
 ```
@@ -20,6 +24,15 @@ donet run <year> <day> <optional: force download of input>
 ```
 
 Example: `dotnet run 2019 4`
+
+### How to run rust
+
+Setup environment variable with your Advent of code session id: `$env:AOC_SESSION_KEY= "53616...a8939"`. Then run solution like this:
+
+```
+cd rust/adventofcode
+cargo run -- --year 2022 --day 1
+```
 
 ## Days Completed
 
@@ -37,7 +50,7 @@ Example: `dotnet run 2019 4`
 - Day 10: Syntax Scoring
 - Day 11: Dumbo Octopus
 - Day 12: Passage Pathing
-- Day 13: Transparent Origami 
+- Day 13: Transparent Origami
 - Day 14: Extended Polymerization
 
 ### 2020 C#
