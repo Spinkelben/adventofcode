@@ -33,7 +33,7 @@ impl Solution for CalorieCounter<'_> {
 }
 
 fn read_input(input: &str) -> Vec<Vec<i32>> {
-    let mut line_iter = input
+    let line_iter = input
         .split("\n")
         .map(|l| l.trim());
 
