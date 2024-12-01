@@ -1,4 +1,4 @@
-use std::{rc::Rc, cell::RefCell};
+use std::{cell::RefCell, cmp::Ordering, rc::Rc};
 
 use super::Solution;
 
@@ -217,14 +217,10 @@ fn is_packets_in_right_order(left: PacketRef, right: PacketRef) -> Option<bool> 
     let right_borrow = &*right.borrow();
     match (left_borrow, right_borrow) {
         (Packet::Integer(l), Packet::Integer(r)) => {
-            if l < r {
-                Some(true)
-            }
-            else if l > r {
-                return Some(false);
-            }
-            else {
-                return None
+            match l.cmp(r) {
+                Ordering::Less => Some(true),
+                Ordering::Greater => Some(false),
+                Ordering::Equal => None
             }
         },
         (Packet::List(l), Packet::List(r)) => {

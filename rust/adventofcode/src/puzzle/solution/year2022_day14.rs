@@ -1,6 +1,6 @@
 use std::{str::FromStr, collections::HashMap};
 
-use regex::{Regex};
+use regex::Regex;
 
 use super::Solution;
 
@@ -113,7 +113,7 @@ impl SandSimulation {
     }
 }
 
-impl<'a> FromStr for RockScan {
+impl FromStr for RockScan {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
