@@ -18,6 +18,7 @@ pub mod year2022_day13;
 pub mod year2022_day14;
 pub mod year2022_day15;
 pub mod year2022_day16;
+pub mod year2023_day01;
 pub mod year2024_day01;
 
 pub trait Solution {
