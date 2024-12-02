@@ -8,6 +8,7 @@ pub struct RedNosedReports<'a>
     input: &'a str
 }
 
+#[derive(PartialEq, Debug)]
 struct Report {
     elements : Vec<i32>
 }
@@ -19,7 +20,7 @@ enum Direction {
 
 impl Report {
     fn get_direction(&self) -> Direction {
-        match self.elements[0] < self.elements[1] {
+        match self.elements[0] < self.elements[self.elements.len() - 1] {
             true => Direction::Increasing,
             false => Direction::Decreasing,
         }
@@ -28,23 +29,64 @@ impl Report {
     fn is_safe(&self) -> bool {
         let direction = self.get_direction();
 
-        for (i, e) in self.elements[0 .. (self.elements.len() - 1)].iter().enumerate() {
-            let diff = e - self.elements[i + 1];
-            match direction {
-                Direction::Decreasing => if diff <= 0 || diff > 3 {
-                    return false;
-                },
-                Direction::Increasing => if diff >= 0 || diff < -3 {
-                    return false;
-                }
+        for (i, current) in self.elements[0 .. (self.elements.len() - 1)].iter().enumerate() {
+            let next = self.elements[i + 1]; 
+            if !Report::is_safe_pair(*current, next, &direction) {
+                return false;
             }
         }
 
         true
     }
 
+    fn is_safe_pair(current: i32, next: i32, direction: &Direction) -> bool {
+        let diff = next - current;
+        match direction {
+            Direction::Decreasing if !(-3 ..= -1).contains(&diff) => false,
+            Direction::Increasing if !(1 ..= 3).contains(&diff) => false,
+            _ => true,
+        }
+    }
+
+    fn create_excluding_element(&self, index_to_remove: usize) -> Option<Self> {
+        if index_to_remove >= self.elements.len() {
+            return None;
+        }
+        let first = &self.elements[0 .. index_to_remove];
+        if index_to_remove < self.elements.len() - 1 {
+            Some(Self { elements: [first, &self.elements[index_to_remove + 1..]].concat() })
+        }
+        else {
+            Some(Self { elements: first.to_vec() })
+        }
+    }
+
     fn is_safe_part2(&self) -> bool {
-        false
+        let direction = self.get_direction();
+
+        for (i, current) in self.elements[0 .. self.elements.len() - 1].iter().enumerate() {
+            let next = self.elements[i + 1];
+            if !Report::is_safe_pair(*current, next, &direction) {
+                let alternative_reports = [
+                    self.create_excluding_element(i),
+                    self.create_excluding_element(i + 1)
+                ];
+                let safe = alternative_reports.iter().any(|r| {
+                    if let Some(report) = r {
+                        report.is_safe()
+                    }
+                    else {
+                        false
+                    }
+                });
+
+                if !safe {
+                    return  false;
+                }
+            }
+        }
+
+        true
     }
 }
 
@@ -76,7 +118,11 @@ impl Solution for RedNosedReports<'_> {
     }
 
     fn solve_part2(&self) -> String {
-        "todo!()".to_string()
+        parse_reports(self.input)
+            .iter()
+            .filter(|r | { r.is_safe_part2() })
+            .count()
+            .to_string()
     }
 }
 
@@ -156,6 +202,7 @@ mod tests {
         assert_eq!("4", solver.solve_part2());
     }
 
+    #[test]
     fn safe_part2_test() {
         let parsed = parse_reports(EXAMPLE);
         assert_eq!(true, parsed[0].is_safe_part2());
@@ -164,5 +211,25 @@ mod tests {
         assert_eq!(true, parsed[3].is_safe_part2());
         assert_eq!(true, parsed[4].is_safe_part2());
         assert_eq!(true, parsed[5].is_safe_part2());
+    }
+
+    #[test]
+    fn extra_safe_part2() {
+        assert_eq!(true, Report::from_str("1 1").unwrap().is_safe_part2())
+    }
+
+    #[test]
+    fn remove_cur_instead_of_next() {
+        assert_eq!(true, Report::from_str("1 4 2 3").unwrap().is_safe_part2())
+    }
+
+    #[test]
+    fn copy_with_elements_removed_text() {
+        let a = Report { elements: vec![1,2,3,4] };
+        assert_eq!(vec![2,3,4], a.create_excluding_element(0).unwrap().elements);
+        assert_eq!(vec![1,3,4], a.create_excluding_element(1).unwrap().elements);
+        assert_eq!(vec![1,2,4], a.create_excluding_element(2).unwrap().elements);
+        assert_eq!(vec![1,2,3], a.create_excluding_element(3).unwrap().elements);
+        assert_eq!(None, a.create_excluding_element(4));
     }
 }
