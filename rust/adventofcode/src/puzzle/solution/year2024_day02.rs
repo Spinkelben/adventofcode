@@ -19,7 +19,7 @@ enum Direction {
 
 impl Report {
     fn get_direction(&self) -> Direction {
-        match self.elements[0] < self.elements[1] {
+        match self.elements[0] < self.elements[self.elements.len() - 1] {
             true => Direction::Increasing,
             false => Direction::Decreasing,
         }
@@ -28,23 +28,51 @@ impl Report {
     fn is_safe(&self) -> bool {
         let direction = self.get_direction();
 
-        for (i, e) in self.elements[0 .. (self.elements.len() - 1)].iter().enumerate() {
-            let diff = e - self.elements[i + 1];
-            match direction {
-                Direction::Decreasing => if diff <= 0 || diff > 3 {
-                    return false;
-                },
-                Direction::Increasing => if diff >= 0 || diff < -3 {
-                    return false;
-                }
+        for (i, current) in self.elements[0 .. (self.elements.len() - 1)].iter().enumerate() {
+            let next = self.elements[i + 1]; 
+            if !Report::is_safe_pair(*current, next, &direction) {
+                return false;
             }
         }
 
         true
     }
 
+    fn is_safe_pair(current: i32, next: i32, direction: &Direction) -> bool {
+        let diff = next - current;
+        match direction {
+            Direction::Decreasing if !(-3 ..= -1).contains(&diff) => false,
+            Direction::Increasing if !(1 ..= 3).contains(&diff) => false,
+            _ => true,
+        }
+    }
+
     fn is_safe_part2(&self) -> bool {
-        false
+        let direction = self.get_direction();
+
+        let mut can_skip_element = true;
+        let mut iter = self.elements.iter();
+
+        let cur = iter.next();
+        if cur.is_none() {
+            return true;
+        }
+
+        let mut cur = cur.unwrap();
+        for next in iter {
+            if !Report::is_safe_pair(*cur, *next, &direction) {
+                if can_skip_element {
+                    can_skip_element = false;
+                    continue;
+                }
+            }
+            else {
+                return false
+            }
+            cur = next;
+        }
+
+        true
     }
 }
 
@@ -76,7 +104,11 @@ impl Solution for RedNosedReports<'_> {
     }
 
     fn solve_part2(&self) -> String {
-        "todo!()".to_string()
+        parse_reports(self.input)
+            .iter()
+            .filter(|r | { r.is_safe_part2() })
+            .count()
+            .to_string()
     }
 }
 
@@ -156,6 +188,7 @@ mod tests {
         assert_eq!("4", solver.solve_part2());
     }
 
+    #[test]
     fn safe_part2_test() {
         let parsed = parse_reports(EXAMPLE);
         assert_eq!(true, parsed[0].is_safe_part2());
@@ -165,4 +198,15 @@ mod tests {
         assert_eq!(true, parsed[4].is_safe_part2());
         assert_eq!(true, parsed[5].is_safe_part2());
     }
+
+    #[test]
+    fn extra_safe_part2() {
+        assert_eq!(true, Report::from_str("1 1").unwrap().is_safe_part2())
+    }
+
+    #[test]
+    fn remove_cur_instead_of_next() {
+        assert_eq!(true, Report::from_str("1 4 2 3").unwrap().is_safe_part2())
+    }
+
 }
