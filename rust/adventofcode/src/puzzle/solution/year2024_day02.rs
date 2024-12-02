@@ -18,14 +18,17 @@ enum Direction {
 }
 
 impl Report {
-    fn is_safe(&self) -> bool {
-        let direction = match self.elements[0] < self.elements[1] {
+    fn get_direction(&self) -> Direction {
+        match self.elements[0] < self.elements[1] {
             true => Direction::Increasing,
             false => Direction::Decreasing,
-        };
+        }
+    }
 
+    fn is_safe(&self) -> bool {
+        let direction = self.get_direction();
 
-        for (i, e) in self.elements[0 .. (self.elements.len() - 2)].iter().enumerate() {
+        for (i, e) in self.elements[0 .. (self.elements.len() - 1)].iter().enumerate() {
             let diff = e - self.elements[i + 1];
             match direction {
                 Direction::Decreasing => if diff <= 0 || diff > 3 {
@@ -38,6 +41,10 @@ impl Report {
         }
 
         true
+    }
+
+    fn is_safe_part2(&self) -> bool {
+        false
     }
 }
 
@@ -136,5 +143,26 @@ mod tests {
     fn part1_test() {
         let solver = RedNosedReports::new(EXAMPLE);
         assert_eq!("2", solver.solve_part1())
+    }
+
+    #[test]
+    fn extra_safe() {
+        assert_eq!(false, Report::from_str("1 1").unwrap().is_safe())
+    }
+
+    #[test]
+    fn part2_test() {
+        let solver = RedNosedReports::new(EXAMPLE);
+        assert_eq!("4", solver.solve_part2());
+    }
+
+    fn safe_part2_test() {
+        let parsed = parse_reports(EXAMPLE);
+        assert_eq!(true, parsed[0].is_safe_part2());
+        assert_eq!(false, parsed[1].is_safe_part2());
+        assert_eq!(false, parsed[2].is_safe_part2());
+        assert_eq!(true, parsed[3].is_safe_part2());
+        assert_eq!(true, parsed[4].is_safe_part2());
+        assert_eq!(true, parsed[5].is_safe_part2());
     }
 }
