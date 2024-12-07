@@ -21,6 +21,7 @@ pub mod year2022_day16;
 pub mod year2023_day01;
 pub mod year2024_day01;
 pub mod year2024_day02;
+pub mod year2024_day03;
 
 pub trait Solution {
     fn solve_part1(&self) -> String;
