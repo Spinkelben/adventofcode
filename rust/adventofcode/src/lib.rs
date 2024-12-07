@@ -59,6 +59,7 @@ pub fn find_sovler<'a>(year: i32, day: i32, input: &'a str) -> Option<Box<dyn So
         (2024, 2) => Some(Box::from(puzzle::solution::year2024_day02::RedNosedReports::new(input))),
         (2024, 3) => Some(Box::from(puzzle::solution::year2024_day03::MullItOver::new(input))),
         (2024, 4) => Some(Box::from(puzzle::solution::year2024_day04::CeresSearch::new(input))),
+        (2024, 5) => Some(Box::from(puzzle::solution::year2024_day05::PrintQueue::new(input))),
         _ => None,
     }
 }
