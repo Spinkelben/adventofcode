@@ -9,28 +9,36 @@ pub struct PrintQueue<'a> {
 
 type Rule = (usize, usize);
 
+#[derive(Debug)]
 struct  ManualUpdates {
     pages: Vec<usize>
 }
 
 impl  ManualUpdates {
-    fn is_in_right_order(&self, rules: &HashMap<usize, Vec<usize>>) -> bool {
+    fn find_broken_rules(&self, rules: &HashMap<usize, Vec<usize>>) -> Vec<Rule> {
         // Since both page numbers of the rule has to be present in the manual update for the rule to apply,
         // it is enough to check the first number
         let mut past_pages = HashSet::new();
+        let mut result: Vec<(usize, usize)> = vec![];
         for page in &self.pages {
-            let is_rule_broken = rules.get(page)
-                .unwrap_or(&vec![])
+            let default = vec![];
+            let broken_rules= rules.get(page)
+                .unwrap_or(&default)
                 .iter()
-                .any(|after| past_pages.contains(after));
-            if is_rule_broken {
-                return false;
-            }
-
+                .filter(|after| past_pages.contains(after))
+                .map(|r| (*page, *r));
+            
+            result.extend(broken_rules);
             past_pages.insert(page);
         }
 
-        true
+        result
+    }
+
+    fn fix_rule(&mut self, rule: Rule) {
+        let a = self.pages.iter().position(|p| *p == rule.0).expect("Failed to find before part of rule");
+        let b = self.pages.iter().position(|p| *p == rule.1).expect("Failed to find after part of rule");
+        self.pages.swap(a, b);
     }
     
     fn get_middle_page(&self) -> usize {
@@ -91,14 +99,34 @@ impl Solution for PrintQueue<'_> {
         let (rules, updates) = self.parse_input().expect("Failed to parse input");
         let rule_map = PrintQueue::create_rule_map(&rules);
         updates.iter()
-            .filter(|u| u.is_in_right_order(&rule_map))
+            .filter(|u| u.find_broken_rules(&rule_map).is_empty())
             .map(|r| r.get_middle_page())
             .sum::<usize>()
             .to_string()
     }
 
     fn solve_part2(&self) -> String {
-        todo!()
+        let (rules, updates) = self.parse_input().expect("Failed to parse input");
+        let rule_map = PrintQueue::create_rule_map(&rules);
+        updates
+            .into_iter()
+            .filter(|u| !u.find_broken_rules(&rule_map).is_empty() )
+            .map(|mut u| {
+                let mut broken_rules = u.find_broken_rules(&rule_map);
+                while !broken_rules.is_empty() {
+                    for rule in broken_rules.iter() {
+                        // println!("Before, Rule: {:#?}, Update {:#?}", rule, u);
+                        u.fix_rule(*rule);
+                        // println!("After, Rule: {:#?}, Update {:#?}", rule, u);
+                    }
+
+                    broken_rules = u.find_broken_rules(&rule_map);
+                }
+                    
+                u.get_middle_page()
+            })
+            .sum::<usize>()
+            .to_string()
     }
 }
 
@@ -154,17 +182,34 @@ mod tests {
         let solver = PrintQueue::new(EXAMPLE);
         let Some((rules, updates)) = solver.parse_input() else { panic!("Failed to parse ")};
         let rules = PrintQueue::create_rule_map(&rules);
-        assert!(updates[0].is_in_right_order(&rules));
-        assert!(updates[1].is_in_right_order(&rules));
-        assert!(updates[2].is_in_right_order(&rules));
-        assert!(!updates[3].is_in_right_order(&rules));
-        assert!(!updates[4].is_in_right_order(&rules));
-        assert!(!updates[5].is_in_right_order(&rules));
+        assert!(updates[0].find_broken_rules(&rules).is_empty());
+        assert!(updates[1].find_broken_rules(&rules).is_empty());
+        assert!(updates[2].find_broken_rules(&rules).is_empty());
+        assert!(!updates[3].find_broken_rules(&rules).is_empty());
+        assert!(!updates[4].find_broken_rules(&rules).is_empty());
+        assert!(!updates[5].find_broken_rules(&rules).is_empty());
     }
 
     #[test]
     fn part1_test() {
         let solver = PrintQueue::new(EXAMPLE);
         assert_eq!("143", solver.solve_part1());
+    }
+
+    #[test]
+    fn number_of_broken_rules_test()  {
+        let solver = PrintQueue::new(EXAMPLE);
+        let Some((rules, updates)) = solver.parse_input() else { panic!("Failed to parse input") };
+        let rules = &PrintQueue::create_rule_map(&rules);
+        assert_eq!(1, updates[3].find_broken_rules(rules).len());
+        assert_eq!(1, updates[4].find_broken_rules(rules).len());
+        println!("{:#?}", updates[5].find_broken_rules(rules));
+        assert_eq!(4, updates[5].find_broken_rules(rules).len());
+    }
+
+    #[test]
+    fn part2_test() {
+        let solver = PrintQueue::new(EXAMPLE);
+        assert_eq!("123", solver.solve_part2());
     }
 }
